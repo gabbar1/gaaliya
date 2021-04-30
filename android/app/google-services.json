@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "864879194151",
+    "firebase_url": "https://gaaliyaa-default-rtdb.firebaseio.com",
+    "project_id": "gaaliyaa",
+    "storage_bucket": "gaaliyaa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864879194151:android:b2744ff13839ccb9a0de02",
+        "android_client_info": {
+          "package_name": "com.boss.gaaliya"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "864879194151-j60onl667l0fas2jm99qnvs2g93285d3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.boss.gaaliya",
+            "certificate_hash": "ebf573cce432efea3a49cf3effb8183616924076"
+          }
+        },
+        {
+          "client_id": "864879194151-gl473n7t12cit8h0q8a56bku6996mfpg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSPPWuVVxrVkN3fT8OJ8xlNAmvc-pT1LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864879194151-gl473n7t12cit8h0q8a56bku6996mfpg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
