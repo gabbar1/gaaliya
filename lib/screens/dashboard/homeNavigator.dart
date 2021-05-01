@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gaaliya/screens/addPost/addPost.dart';
 import 'package:gaaliya/screens/dashboard/dashBoard.dart';
 import 'package:gaaliya/screens/likes/likesView.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
 import 'package:gaaliya/screens/search/searchView.dart';
+import 'package:flutter/material.dart' as textfont;
 
 /// This is the stateful widget that the main application instantiates.
 class HomeNavigator extends StatefulWidget {
@@ -105,6 +105,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
               onTap: (){
                 setState(() {
                   _CurrentIdex =3;
+
                 });
               },
               child: Container(

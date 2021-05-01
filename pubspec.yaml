@@ -36,6 +36,7 @@ dependencies:
   flutter_svg: ^0.22.0
   image_picker: ^0.7.4
   shared_preferences: ^2.0.5
+  animator: ^3.0.0
   flutter:
     sdk: flutter
 
