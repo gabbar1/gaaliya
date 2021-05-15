@@ -5,11 +5,12 @@ class PostModel {
   String postID;
   String time;
   String userID;
+  String imageUrl;
   int likes;
   int comments;
   String key;
 
-  PostModel({this.gali, this.postID, this.time, this.userID,this.comments,this.likes,this.key});
+  PostModel({this.gali, this.postID, this.time, this.userID,this.comments,this.likes,this.key,this.imageUrl});
 
   PostModel.fromJson(Map<dynamic, dynamic> json) {
     key = json["key"];
@@ -18,6 +19,7 @@ class PostModel {
     time = json['time'];
     userID = json['userID'];
     likes = json['likes'];
+    imageUrl = json['imageUrl'];
     comments = json['comments'];
   }
   PostModel.fromSnapShot(DataSnapshot snapshot) {
@@ -28,6 +30,7 @@ class PostModel {
     userID = snapshot.value['userID'];
     likes = snapshot.value['likes'];
     comments = snapshot.value['comments'];
+    imageUrl = snapshot.value['imageUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -38,6 +41,7 @@ class PostModel {
     data['userID'] = this.userID;
     data['likes'] = this.likes;
     data['comments'] = this.comments;
+    data['imageUrl'] = this.imageUrl;
     return data;
   }
 }

@@ -4,10 +4,12 @@ import 'dart:core';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gaaliya/model/commentModel.dart';
+import 'package:gaaliya/model/userModel.dart';
 
 class CommentProvider extends ChangeNotifier {
   DatabaseReference transRef = FirebaseDatabase.instance.reference();
   List<CommentModel> commentList = <CommentModel>[];
+  List<UserModel> userTagList = <UserModel>[];
   int i;
 
   Future<void> getCommentList({String postID}) async {
@@ -36,6 +38,34 @@ class CommentProvider extends ChangeNotifier {
         }
 
 
+      }
+    });
+  }
+
+  Future<void> UserTag() async{
+    userTagList.clear();
+    transRef.child("user").once().then((DataSnapshot snapshot){
+
+      if(snapshot.value !=null){
+        Map<dynamic, dynamic> listTag = snapshot.value;
+
+        listTag.forEach((key,value){
+          print("------------TagList-----------");
+          print(value);
+
+          UserModel userModel = UserModel.fromJson({
+            'profile' : value['profile'],
+            'userEmail' : value['userEmail'],
+            'userID' : value['userID'],
+            'userName' : value['userName'],
+            'following' :value['following'],
+            'followers' :value['followers'],
+            'folderID' :value['folderID'],
+            'key': key
+          });
+          userTagList.add(userModel);
+        });
+        notifyListeners();
       }
     });
   }

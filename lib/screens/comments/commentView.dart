@@ -34,6 +34,7 @@ class _CommentViewState extends State<CommentView> {
     // TODO: implement initState
     super.initState();
     Provider.of<CommentProvider>(context, listen: false).getCommentList(postID: widget.postID);
+    Provider.of<CommentProvider>(context, listen: false).UserTag();
     Provider.of<CommentProvider>(context, listen: false).commentList.clear();
     refreshController = RefreshController(initialRefresh: false);
     this.uid = '';
@@ -226,16 +227,20 @@ class _CommentViewState extends State<CommentView> {
               ,child:  str.length > 1
                 ? ListView(
                 shrinkWrap: true,
-                children: tag.map((s){
-                  if(('@' + s).contains(str))
+                children: commentList.userTagList.map((s){
+                  print("List----------------------");
+                  print(s.userName.startsWith(str.replaceAll("@", "")));
+                  print(s.userName);
+                  print(str);
+                  if(('@' + s.userName).contains(str))
                     return
                       ListTile(
-                          title:Text(s,style: TextStyle(color: Colors.black),),
+                          title:Text(s.userName,style: TextStyle(color: Colors.black),),
                           onTap:(){
                             String tmp = str.substring(1,str.length);
                             setState((){
                               str ='';
-                              textEditingController.text += s.substring(s.indexOf(tmp)+tmp.length,s.length).replaceAll(' ','_');
+                              textEditingController.text += s.userName.substring(s.userName.indexOf(tmp)+tmp.length,s.userName.length).replaceAll(' ','_');
                             });
                           });
                   else return SizedBox();

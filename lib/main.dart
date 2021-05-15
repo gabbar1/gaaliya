@@ -1,26 +1,25 @@
+import 'dart:async';
 import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaliya/providerState/providerState.dart';
-import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
-import 'package:gaaliya/service/authService.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/docs/v1.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:flutter/material.dart' as textFont;
-
+import 'helper/appUtils.dart';
 import 'helper/googleCLientAPI.dart';
 import 'helper/helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/dashboard/dashBoard.dart';
+import 'service/authService.dart';
 
-void main() async {
+
+
+Future<void> main() async {
+  // Fetch the available cameras before initializing the app.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MultiProvider(
@@ -34,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        navigatorObservers: [AppUtils().routeObserver],
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -59,7 +59,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    await googleUser.authentication;
 
     // Create a new credential
     final GoogleAuthCredential credential = GoogleAuthProvider.credential(
@@ -74,7 +74,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         .then((value) async {
       if (value.user != null) {
         final googleSignIn =
-            signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
+        signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
         final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
         final authHeaders = await account.authHeaders;
         final authenticateClient = GoogleAuthClient(authHeaders);
@@ -103,7 +103,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
               'userPhone': value.user.phoneNumber,
               'userName': value.user.displayName,
               'profile': dummyProfilePicList[randomNumber],
-              'folderID': folder.id
+              'folderID': folder.id,
+              "followers":0,
+              "following":0
+
+
             });
           } else {
             prefs.setString('folderID', snapshot.value["folderID"]);
@@ -119,12 +123,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
       body: Container(
         height: MediaQuery.of(context).size.height,
-    decoration: BoxDecoration(
-    
-    image:  DecorationImage(
-    image: ExactAssetImage("assets/icons/background.png"),
-    fit: BoxFit.cover,
-    )),
+        decoration: BoxDecoration(
+
+            image:  DecorationImage(
+              image: ExactAssetImage("assets/icons/background.png"),
+              fit: BoxFit.cover,
+            )),
         child: Stack(
           children: [
             Container(
@@ -140,7 +144,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                           color: Colors.grey,
                         ),
                         borderRadius:
-                            BorderRadius.all(Radius.circular(30))),
+                        BorderRadius.all(Radius.circular(30))),
                     margin: EdgeInsets.only(
                         top: MediaQuery.of(context).size.height / 1.5,
                         left: 20,

@@ -11,10 +11,13 @@ import 'dashBoard.dart';
 
 class DashBoardProvider extends ChangeNotifier {
   List<PostModel> postList = <PostModel>[];
+  List<PostModel> userPostList = <PostModel>[];
   List<UserModel> userDetails = <UserModel>[];
   DatabaseReference transRef = FirebaseDatabase.instance.reference();
   List<String> likeList = <String>[];
   int i;
+
+  var userName,userProfile;
 
   Future<void> getPostList() async {
     transRef.child("content").once().then((DataSnapshot snapshot) {
@@ -33,6 +36,7 @@ class DashBoardProvider extends ChangeNotifier {
             'userID': value['userID'],
             'likes': value['likes'],
             'comments': value['comments'],
+            'imageUrl': value['imageUrl'],
             'key': key
           });
           postList.add(postModel);
@@ -44,8 +48,7 @@ class DashBoardProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> setLikesList(
-      {String postID, int like, String uid, String node}) async {
+  Future<void> setLikesList({String postID, int like, String uid, String node}) async {
     print("----------------------------------------likesssssssssssssssssss" +
         like.toString());
 
@@ -70,10 +73,9 @@ class DashBoardProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> sendPost(
-      {String postContent, userID, BuildContext context}) async {
+  Future<void> sendPost({String postContent, userID, contentURL,BuildContext context}) async {
     String postID;
-    onLoading(context: context, strMessage: "Loading");
+
     transRef.child("content").once().then((value) {
       postID = "GL_" +
           userID +
@@ -87,11 +89,33 @@ class DashBoardProvider extends ChangeNotifier {
         'time': DateTime.now().toString(),
         'userID': userID,
         'likes': 0,
-        'comments': 0
+        'comments': 0,
+        "imageUrl":contentURL
       }).then((value) => Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomeNavigator()),
           (Route<dynamic> route) => false));
+    });
+  }
+
+  Future<void> sendProfilePost({String name,email,postContent, userID, contentURL,BuildContext context}) async {
+    String postID;
+
+    transRef.child("content").once().then((value) {
+      postID = "GL_" +
+          userID +
+          (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+      print(postID);
+      print(value.value.length);
+      Navigator.pop(context);
+      transRef.child("user").child(userID).update({
+        "profile":contentURL,
+        "userEmail":email,
+        "userName":name
+      }).then((value) => Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomeNavigator()),
+              (Route<dynamic> route) => false));
     });
   }
 
@@ -144,6 +168,9 @@ class DashBoardProvider extends ChangeNotifier {
           'userEmail' : value['userEmail'],
           'userID' : value['userID'],
           'userName' : value['userName'],
+           'following' :value['following'],
+           'followers' :value['followers'],
+           'folderID' :value['folderID'],
             'key': key
           });
           userDetails.add(postModel);
@@ -153,4 +180,39 @@ class DashBoardProvider extends ChangeNotifier {
       }
     });
   }
+
+  Future<void> getUserPostList({String uid}) async {
+    transRef.child("content").once().then((DataSnapshot snapshot) {
+      userPostList.clear();
+      print("-------------------haga----------------");
+
+      if (snapshot != null) {
+        Map<dynamic, dynamic> listPost = snapshot.value;
+
+        listPost.forEach((key, value) {
+         // print(value);
+          PostModel postModel = PostModel.fromJson({
+            'gali': value['gali'],
+            'postID': value['postID'],
+            'time': value['time'],
+            'userID': value['userID'],
+            'likes': value['likes'],
+            'comments': value['comments'],
+            'imageUrl': value['imageUrl'],
+            'key': key
+          });
+
+          userPostList.add(postModel);
+          userPostList.removeWhere((element) => element.userID != uid);
+          userPostList.sort((a, b) =>
+              DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
+          print(userPostList);
+        });
+        notifyListeners();
+      }
+    });
+  }
+
+
+
 }
