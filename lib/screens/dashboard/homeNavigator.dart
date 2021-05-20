@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaliya/screens/addPost/addPost.dart';
@@ -41,6 +43,17 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     }
   }
 
+  void afterBuildFunction(BuildContext context) {
+    FirebaseDatabase.instance.reference().child('subscription').child(uid).once().then((DataSnapshot snapshot){
+      if(snapshot.value!=null){
+        Map<dynamic, dynamic> subscribeList = snapshot.value;
+        subscribeList.forEach((key, value) {
+          FirebaseMessaging.instance.subscribeToTopic(value['subriberID']);
+        });
+      }
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -50,6 +63,8 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User user = auth.currentUser;
     this.uid = user.uid;
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => afterBuildFunction(context));
   }
   @override
   Widget build(BuildContext context) {
@@ -63,10 +78,8 @@ class _HomeNavigatorState extends State<HomeNavigator> {
 
         decoration: BoxDecoration(
 
-          color: Colors.white,
-            border: Border.all(
-              color: Colors.grey,
-            ),
+          color: Color(0xFF37343B),
+
             borderRadius: BorderRadius.only(
                 topRight: Radius.circular(30), topLeft: Radius.circular(30))),
         height: 90,
@@ -126,7 +139,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
               child: Container(
                 height: 80,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/images/like.png"),
+                child: Image.asset("assets/icons/ico_gali_lib.png"),
               ),
             ),
             Spacer(),
@@ -148,9 +161,13 @@ class _HomeNavigatorState extends State<HomeNavigator> {
                      child: Image.asset("assets/images/profile.png"),
                    );
                  } else{
-                   return CircleAvatar(
-                       radius: 15,
-                       backgroundImage: NetworkImage(snapshot.userDetails.where((element) => element.userID == uid).first.profile)
+                   return Container(
+                     height: 25,
+                     width: MediaQuery.of(context).size.width/6,
+                     child: CircleAvatar(
+                         radius: 15,
+                         backgroundImage: NetworkImage(snapshot.userDetails.where((element) => element.userID == uid).first.profile==null ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg":snapshot.userDetails.where((element) => element.userID == uid).first.profile)
+                     ),
                    );
                   /* return Container(
                      height: 30,
@@ -162,7 +179,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
                }
              ),
            ),
-            Spacer()
+
 
           ],
         ),

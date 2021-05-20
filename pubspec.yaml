@@ -35,6 +35,7 @@ dependencies:
   file_picker: ^3.0.1
   flutter_svg: ^0.22.0
   image_picker: ^0.7.4
+  flutter_native_admob: ^2.1.0+3
   shared_preferences: ^2.0.5
   animator: ^3.0.0
   auto_size_text_field: ^0.1.7
@@ -44,6 +45,8 @@ dependencies:
   screenshot: ^0.3.0
   image: ^3.0.2
   fluttertoast: ^8.0.6
+  flutter_local_notifications: ^5.0.0+1
+  firebase_messaging: ^9.1.1
   flutter:
     sdk: flutter
 

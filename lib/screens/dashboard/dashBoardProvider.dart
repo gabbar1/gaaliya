@@ -1,16 +1,20 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/postModel.dart';
 import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
+import 'package:provider/provider.dart';
 
 import 'dashBoard.dart';
 
 class DashBoardProvider extends ChangeNotifier {
   List<PostModel> postList = <PostModel>[];
+  List<PostModel> filterPostList = <PostModel>[];
   List<PostModel> userPostList = <PostModel>[];
   List<UserModel> userDetails = <UserModel>[];
   DatabaseReference transRef = FirebaseDatabase.instance.reference();
@@ -19,7 +23,7 @@ class DashBoardProvider extends ChangeNotifier {
 
   var userName,userProfile;
 
-  Future<void> getPostList() async {
+  Future<void> getPostList({String filterID}) async {
     transRef.child("content").once().then((DataSnapshot snapshot) {
       postList.clear();
       print("-----------------------------------");
@@ -39,9 +43,24 @@ class DashBoardProvider extends ChangeNotifier {
             'imageUrl': value['imageUrl'],
             'key': key
           });
-          postList.add(postModel);
-          postList.sort((a, b) =>
-              DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
+        //  postList.add(postModel);
+          filterPostList.add(postModel);
+          print("---------------BeforeFilter------------------");
+          print(postList.length);
+          if(filterID!=null){
+            print("---------------Filter------------------");
+            print(filterID);
+            postList = filterPostList.where((element) => element.userID == filterID).toList();
+
+            postList.sort((a, b) => DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
+          }else{
+            print("------------ErrorFilter------------");
+            postList = filterPostList;
+            postList.sort((a, b) => DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
+          }
+          print("---------------afterFilter------------------");
+          print(postList.length);
+
         });
         notifyListeners();
       }
@@ -91,14 +110,19 @@ class DashBoardProvider extends ChangeNotifier {
         'likes': 0,
         'comments': 0,
         "imageUrl":contentURL
-      }).then((value) => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeNavigator()),
-          (Route<dynamic> route) => false));
+      }).then((value) {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeNavigator()), (Route<dynamic> route) => false);
+        transRef.child('user').child(userID).once().then((DataSnapshot snapshot){
+          if(snapshot!=null){
+            Provider.of<ImageFile>(context,listen:false).sendNotification(title: snapshot.value['userName']+" has added new post",topic: userID,subject: "New Post");
+          }
+        });
+
+      });
     });
   }
 
-  Future<void> sendProfilePost({String name,email,postContent, userID, contentURL,BuildContext context}) async {
+  Future<void> sendProfilePost({String name,email,postContent, userID, galiUserID,contentURL,BuildContext context}) async {
     String postID;
 
     transRef.child("content").once().then((value) {
@@ -107,15 +131,15 @@ class DashBoardProvider extends ChangeNotifier {
           (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
       print(postID);
       print(value.value.length);
-      Navigator.pop(context);
+
       transRef.child("user").child(userID).update({
         "profile":contentURL,
         "userEmail":email,
-        "userName":name
-      }).then((value) => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeNavigator()),
-              (Route<dynamic> route) => false));
+        "userName":name,
+        "galiUserID":galiUserID
+      });
+      Fluttertoast.showToast(msg: "Profile Update");
+       Navigator.pop(context);
     });
   }
 
@@ -171,6 +195,7 @@ class DashBoardProvider extends ChangeNotifier {
            'following' :value['following'],
            'followers' :value['followers'],
            'folderID' :value['folderID'],
+           'galiUserID' :value['galiUserID'],
             'key': key
           });
           userDetails.add(postModel);

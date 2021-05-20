@@ -3,6 +3,7 @@
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/screens/comments/commentProvider.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+import 'package:gaaliya/screens/follow/followProvider.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:gaaliya/screens/galiLib/galiLibProvider.dart';
 import 'package:gaaliya/screens/profile/profileProvider.dart';
@@ -19,5 +20,6 @@ List<SingleChildWidget> providerList =[
   ChangeNotifierProvider<GaliImageProvider>(create: (_) => GaliImageProvider()),
   ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider()),
   ChangeNotifierProvider<GaliLibProvider>(create: (_) => GaliLibProvider()),
+  ChangeNotifierProvider<FollowProvider>(create: (_) => FollowProvider()),
 ];
 }

@@ -3,6 +3,7 @@ class UserModel {
   String userEmail;
   String userID;
   String userName;
+  String galiUserID;
   String followers;
   String following;
   String key;
@@ -17,6 +18,7 @@ class UserModel {
     userID = json['userID'];
     userName = json['userName'];
     folderID = json['folderID'];
+    galiUserID = json['galiUserID'];
     followers = json['followers'].toString();
     following = json['following'].toString();
   }
@@ -30,6 +32,7 @@ class UserModel {
     data['following'] = this.following;
     data['followers'] = this.followers;
     data['folderID'] = this.folderID;
+    data['galiUserID'] = this.galiUserID;
     return data;
   }
 }

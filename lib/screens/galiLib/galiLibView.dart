@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_admob/flutter_native_admob.dart';
+import 'package:flutter_native_admob/native_admob_controller.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gaaliya/model/galiLibModel.dart';
 import 'package:gaaliya/model/userModel.dart';
 
 import 'package:provider/provider.dart';
@@ -15,15 +18,28 @@ class GaliLibView extends StatefulWidget {
 TextEditingController searchController = TextEditingController();
 
 class _GaliLibViewState extends State<GaliLibView> {
+  int startIndex = 10;
+  ScrollController scrollController = new ScrollController();
+  bool isLoading = false;
+  static const _adUnitID = "ca-app-pub-3940256099942544/8135179316";
+  final _nativeAdController = NativeAdmobController();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     Provider.of<GaliLibProvider>(context, listen: false).getGaliLib();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        setState(() {
+          isLoading = true;
+        });
+      }
+    });
   }
 
   String searchTerms = "";
-  List<UserModel> userList = <UserModel>[];
+  List<GaliLibModel> userList = <GaliLibModel>[];
   @override
   Widget build(BuildContext context) {
     return Consumer<GaliLibProvider>(
@@ -53,11 +69,11 @@ class _GaliLibViewState extends State<GaliLibView> {
                       userList.clear();
                       searchTerms = val;
                       search.userTagList.forEach((element) {
-                        if (element.userName.contains(searchTerms) ||
-                            element.userName
+                        if (element.content.contains(searchTerms) ||
+                            element.content
                                 .toLowerCase()
                                 .contains(searchTerms) ||
-                            element.userName
+                            element.content
                                 .toUpperCase()
                                 .contains(searchTerms)) {
                           userList.add(element);
@@ -68,42 +84,64 @@ class _GaliLibViewState extends State<GaliLibView> {
                 ),
                 Container(
                     margin: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height / 5),
+                        top: MediaQuery.of(context).size.height / 6),
                     height: MediaQuery.of(context).size.height,
                     child: Container(
 
                       height: MediaQuery.of(context).size.height,
-                      child: ListView.builder(
-                          itemCount: userList.length == 0
-                              ? search.userTagList.length
-                              : userList.length,
+                      child: ListView.separated(
+                          itemCount: userList.length == 0 ? search.userTagList.length<10 ? search.userTagList.length : startIndex+1 : userList.length,
+                          separatorBuilder: (context,index){
+                            if(index%10 == 0&&index !=0){
+                              return Container(
+                                height: 330,
+                                padding: EdgeInsets.all(10),
+                                margin: EdgeInsets.only(bottom: 20.0),
+                                child: NativeAdmob(
+                                  // Your ad unit id
+                                  adUnitID: _adUnitID,
+                                  numberAds: 3,
+                                  controller: _nativeAdController,
+                                  type: NativeAdmobType.full,
+                                ),
+                              );
+                            } else{
+                              return Container();
+                            }
+                          },
                           itemBuilder: (context, index) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                  color: Color(0xFF37343B),
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                              margin: EdgeInsets.only(bottom: 5),
-                              height: MediaQuery.of(context).size.height / 11,
+                             if(index == startIndex){
+                                return nextIndex(index, search);
+                             } else{
+                               return Container(
+                                 decoration: BoxDecoration(
+                                     color: Color(0xFF37343B),
+                                     borderRadius:
+                                     BorderRadius.all(Radius.circular(5))),
+                                 margin: EdgeInsets.only(bottom: 5),
+                                 height: MediaQuery.of(context).size.height / 11,
 
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 15,),
-                                  Text(userList.length == 0
-                                      ? search.userTagList[index].userName
-                                      : userList[index].userName,style: TextStyle(color: Colors.white),),
-                                  Spacer(),
-                                  InkWell(onTap: (){
-                                    Clipboard.setData(ClipboardData(text:userList.length == 0
-                                        ? search.userTagList[index].userName
-                                        : userList[index].userName )).then((value) {
-                                          Fluttertoast.showToast(msg: "gaali copied");
-                                    });
-                                  },child: Image.asset("assets/icons/ico_copy.png")),
-                                  SizedBox(width: 15,)
-                                ],
-                              ),
-                            );
+                                 child: Row(
+                                   children: [
+                                     SizedBox(width: 15,),
+                                     Text(userList.length == 0
+                                         ? search.userTagList[index].content
+                                         : userList[index].content,style: TextStyle(color: Colors.white),),
+                                     Spacer(),
+                                     InkWell(onTap: (){
+                                       Clipboard.setData(ClipboardData(text:userList.length == 0
+                                           ? search.userTagList[index].content
+                                           : userList[index].content )).then((value) {
+                                         Fluttertoast.showToast(msg: "gaali copied");
+                                       });
+                                     },child: Image.asset("assets/icons/ico_copy.png")),
+                                     SizedBox(width: 15,)
+                                   ],
+                                 ),
+                               );
+                             }
+
+
                           }),
                     )),
                 Container(
@@ -132,10 +170,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                           onTap: () {
                             print("Filter-----------");
                             setState(() {
-                              userList= search.userTagList
-                                  .where((element) => element.userName
-                                  .contains(search.result[index]))
-                                  .toList();
+                              userList= search.userTagList.where((element) => element.type.contains(search.result[index])).toList();
                             });
                           },
                         );
@@ -147,5 +182,19 @@ class _GaliLibViewState extends State<GaliLibView> {
         );
       },
     );
+  }
+
+  nextIndex(int index, GaliLibProvider search) {
+    if (startIndex < search.userTagList.length) {
+      if (startIndex + 10 >=  search.userTagList.length) {
+        var lastIndex =
+            search.userTagList.length - index;
+        startIndex = index + lastIndex;
+        Future.delayed(Duration(seconds: 5));
+
+      } else {
+        startIndex = index + 10;
+      }
+    }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:gaaliya/helper/helper.dart';
@@ -90,14 +91,14 @@ class GaliImageProvider extends ChangeNotifier{
       final cropImage = decodeImage(File(fullPath).readAsBytesSync());
 
       // Resize the image to a 120x? thumbnail (maintaining the aspect ratio).
-      final thumbnail = copyResize(cropImage, width: 300,height: 300,interpolation: Interpolation.average);
+      final thumbnail = copyResize(cropImage, width: 300,height:300,interpolation: Interpolation.average);
 
       // Save the thumbnail as a PNG.
       final String newFullPath = '$dir/${DateTime.now().millisecond}.png';
       await File(newFullPath).writeAsBytesSync(encodePng(thumbnail));
       capturedNewFile = File(newFullPath);
       print("--------------------");
-      print(capturedFile);
+      print(capturedNewFile);
       print(newFullPath);
       filename=newFullPath.split("/").last;
       notifyListeners();
@@ -122,15 +123,15 @@ class GaliImageProvider extends ChangeNotifier{
     final authenticateClient = GoogleAuthClient(authHeaders);
     final driveApi = drive.DriveApi(authenticateClient);
 
-
+    print(image.path);
     File croppedFile = File(image.path);
     drive.File fileUpload = drive.File();
     drive.Permission per = drive.Permission();
     per.type = "anyone";
     per.role = "reader";
     fileUpload.name = filename;
-    fileUpload.parents = [prefs.getString("folderID")];
-    print(prefs.getString("folderID"));
+  /*  fileUpload.parents = [prefs.getString("folderID")];
+    print(prefs.getString("folderID"));*/
     final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
     try
     {
@@ -147,7 +148,7 @@ class GaliImageProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> uploadProfileToGoogleDrive({String name,email,File image,String filename,content,BuildContext context, String uid,String folder}) async {
+  Future<void> uploadProfileToGoogleDrive({String galiUserID,name,email,File image,String filename,content,BuildContext context, String uid,String folder}) async {
     onLoading(context: context, strMessage: "Loading");
     final SharedPreferences prefs = await _prefs;
     final googleSignIn =
@@ -175,12 +176,29 @@ class GaliImageProvider extends ChangeNotifier{
       print("00000000000000000000000000000000000");
       print(result.id);
       print("https://drive.google.com/uc?export=download&id="+result.id);
-      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(email:email,name:name,context: context,userID: uid,postContent:content,contentURL:"https://drive.google.com/uc?export=download&id="+result.id  );
+      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:"https://drive.google.com/uc?export=download&id="+result.id  );
       //Creating Permission after folder creation.
     }
     catch (Exception)
     {
       print("Error");
     }
+  }
+  bool userExist = false;
+   checkUserID({BuildContext context,String galiUserID}) async{
+    FirebaseDatabase.instance.reference().child('user').once().then((DataSnapshot snapshot){
+      if(snapshot.value!=null){
+        Map<dynamic, dynamic> listPost = snapshot.value;
+        listPost.forEach((key, value) {
+          if(value['galiUserID'] == galiUserID){
+           showDialog(context: context, builder: (BuildContext context){
+             return AlertDialog(title: Text("User Already Taken"),);
+           });
+          }
+        });
+
+      }
+    });
+    return userExist;
   }
 }

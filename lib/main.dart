@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gaaliya/providerState/providerState.dart';
+import 'package:gaaliya/screens/dashboard/dashBoard.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,20 +19,104 @@ import 'helper/googleCLientAPI.dart';
 import 'helper/helper.dart';
 import 'service/authService.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
+
+/// Create a [AndroidNotificationChannel] for heads up notifications
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.high,
+);
+
+/// Initialize the [FlutterLocalNotificationsPlugin] package.
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 
 
 Future<void> main() async {
   // Fetch the available cameras before initializing the app.
   WidgetsFlutterBinding.ensureInitialized();
+ // await MobileAds.instance.initialize();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   runApp(MultiProvider(
     providers: ProviderState().providerList,
     child: MyApp(),
   ));
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      if (message != null) {
+        Navigator.pushNamed(context, '/message',
+            arguments: App());
+      }
+    });
+    var initializationSettingsAndroid =
+    new AndroidInitializationSettings('ic_action_notification_gali');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      );
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("--------------listen");
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                // TODO add a proper drawable resource to android, for now using
+                //      one that already exists in example app.
+                  importance: Importance.max, priority: Priority.high
+              ),
+            ));
+      } else{
+        print( android.channelId);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      Navigator.pushNamed(context, '/message',
+          arguments: App());
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,6 +129,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
 class LoginPageWidget extends StatefulWidget {
   @override
   _LoginPageWidgetState createState() => _LoginPageWidgetState();
@@ -52,8 +141,14 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   GoogleSignIn _googleSignIn = GoogleSignIn();
   FirebaseAuth _auth;
   bool isUserSignedIn = false;
-
+var postID;
   Future<UserCredential> signInWithGoogle() async {
+
+    FirebaseDatabase.instance.reference().child("user").once().then((value) {
+
+      postID = "GL_" + (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+
+    });
     // Trigger the authentication flow
     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
@@ -81,6 +176,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         final driveApi = drive.DriveApi(authenticateClient);
         final SharedPreferences prefs = await _prefs;
         print("User account $account");
+
         FirebaseDatabase.instance
             .reference()
             .child("user")
@@ -105,10 +201,12 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
               'profile': dummyProfilePicList[randomNumber],
               'folderID': folder.id,
               "followers":0,
-              "following":0
+              "following":0,
+              "galiUserID": postID
 
 
             });
+
           } else {
             prefs.setString('folderID', snapshot.value["folderID"]);
           }

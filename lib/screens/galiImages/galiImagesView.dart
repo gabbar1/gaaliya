@@ -139,7 +139,7 @@ class _GaliImagesViewState extends State<GaliImagesView> {
       }),
       floatingActionButton: FloatingActionButton(child: Icon(Icons.add),onPressed: (){
         Provider.of<ImageFile>(context, listen: false)
-            .showImagePicker(context: context);
+            .showImagePicker(context: context,type: 2);
       }),
     );
   }

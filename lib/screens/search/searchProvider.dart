@@ -9,8 +9,10 @@ class SearchProvider extends ChangeNotifier{
   List<UserModel> userTagList = <UserModel>[];
 
   Future<void> getGaliLib() async{
+
+
     ref.reference().child("user").once().then((DataSnapshot snapshot){
-userTagList.clear();
+    userTagList.clear();
       if(snapshot.value !=null){
         Map<dynamic, dynamic> listTag = snapshot.value;
 
@@ -20,6 +22,7 @@ userTagList.clear();
 
           UserModel userModel = UserModel.fromJson({
             'profile' : value['profile'],
+            'galiUserID' : value['galiUserID'],
             'userEmail' : value['userEmail'],
             'userID' : value['userID'],
             'userName' : value['userName'],
