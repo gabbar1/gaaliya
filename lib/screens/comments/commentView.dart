@@ -56,7 +56,7 @@ class _CommentViewState extends State<CommentView> {
                 child: ListView.builder(
                     itemCount: commentList.commentList.length,
                     itemBuilder: (context, comment) {
-                      print(DateTime.now().minute);
+
                       return ListTile(
                         title: Row(
                           children: [
@@ -137,7 +137,7 @@ class _CommentViewState extends State<CommentView> {
                                   builder: (BuildContext context, snap) {
                                     if (snap.connectionState !=
                                         ConnectionState.done) {
-                                      //print('project snapshot data is: ${snap.data}');
+
                                       return SvgPicture.asset(
                                           "assets/icons/beforeLike.svg");
                                     } else {
@@ -158,9 +158,7 @@ class _CommentViewState extends State<CommentView> {
                                 ),
                               ),
                               onTap: () {
-                                print("likeList" +
-                                    commentList.commentList[comment].likes
-                                        .toString());
+
                                 commentList
                                     .setCommentLikes(
                                         postID: commentList
@@ -228,10 +226,7 @@ class _CommentViewState extends State<CommentView> {
                 ? ListView(
                 shrinkWrap: true,
                 children: commentList.userTagList.map((s){
-                  print("List----------------------");
-                  print(s.userName.startsWith(str.replaceAll("@", "")));
-                  print(s.userName);
-                  print(str);
+
                   if(('@' + s.userName).contains(str))
                     return
                       ListTile(

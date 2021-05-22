@@ -16,11 +16,10 @@ class CommentProvider extends ChangeNotifier {
 
     transRef.child("comments").child(postID).once().then((DataSnapshot snapshot) {
       commentList.clear();
-      print("-----------------------------------");
 
       if (snapshot != null) {
         Map<dynamic, dynamic> listComment = snapshot.value;
-        print(listComment);
+
         if( listComment !=null){
           listComment.forEach((key, value) {
             CommentModel postModel = CommentModel.fromJson({
@@ -50,8 +49,7 @@ class CommentProvider extends ChangeNotifier {
         Map<dynamic, dynamic> listTag = snapshot.value;
 
         listTag.forEach((key,value){
-          print("------------TagList-----------");
-          print(value);
+
 
           UserModel userModel = UserModel.fromJson({
             'profile' : value['profile'],
@@ -73,7 +71,7 @@ class CommentProvider extends ChangeNotifier {
 
 
   Future<void> setCommentLikes({String postID,int like,String uid,String node}) async{
-    print("----------------------------------------likesssssssssssssssssss"+like.toString());
+
 
     transRef.child("likes").child(uid).child(postID).child(node).once().then((DataSnapshot snapshot) {
 
@@ -104,8 +102,7 @@ class CommentProvider extends ChangeNotifier {
   }
 
   void omSendComment({String comment,postID,userID}) {
-    print(postID);
-    print(userID);
+
     FirebaseDatabase.instance.reference().child("comments").child(postID).push().set(
         {
           'comment':comment,

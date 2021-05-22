@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:gaaliya/screens/addPost/addPost.dart';
 import 'package:gaaliya/screens/dashboard/dashBoard.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:gaaliya/screens/galiLib/galiLibView.dart';
 import 'package:gaaliya/screens/likes/likesView.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
@@ -115,6 +116,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
             GestureDetector(
               onTap: (){
                 _CurrentIdex =2;
+                Provider.of<GaliImageProvider>(context,listen: false).imageLink =null;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -152,8 +154,8 @@ class _HomeNavigatorState extends State<HomeNavigator> {
              child: Consumer<DashBoardProvider>(
 
                builder: (BuildContext con, snapshot,child) {
-                 print("-------------profile------------------");
-                 snapshot.userDetails.isNotEmpty ? print("isEmpty"):print("isNotEmpty");
+
+
                  if(snapshot.userDetails.isEmpty){
                   return Container(
                      height: 80,

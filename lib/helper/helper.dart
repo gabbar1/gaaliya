@@ -255,7 +255,7 @@ class ImageFile extends ChangeNotifier{
     final googleSignIn =
     signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-    print("User account $account");
+
 
     final authHeaders = await account.authHeaders;
     final authenticateClient = GoogleAuthClient(authHeaders);
@@ -272,14 +272,12 @@ class ImageFile extends ChangeNotifier{
 
     fileUpload.name = date.toString();
     fileUpload.parents = [prefs.getString("folderID")];
-    print(prefs.getString("folderID"));
+
     final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
     try
     {
       driveApi.permissions.create(per, result.id);
-      print("00000000000000000000000000000000000");
-      print(result.id);
-      print("https://drive.google.com/uc?export=download&id="+result.id);
+
       //Creating Permission after folder creation.
     }
     catch (Exception)

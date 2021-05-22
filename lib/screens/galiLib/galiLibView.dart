@@ -89,7 +89,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                     child: Container(
 
                       height: MediaQuery.of(context).size.height,
-                      child: ListView.separated(
+                      child: userList.length != 0 || search.userTagList.length!=0 ? ListView.separated(
                           itemCount: userList.length == 0 ? search.userTagList.length<10 ? search.userTagList.length : startIndex+1 : userList.length,
                           separatorBuilder: (context,index){
                             if(index%10 == 0&&index !=0){
@@ -142,7 +142,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                              }
 
 
-                          }),
+                          }): Center(child: Container(child: CircularProgressIndicator(strokeWidth: 20,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
                     )),
                 Container(
                   margin: EdgeInsets.only(
@@ -168,7 +168,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                             ),
                           ),
                           onTap: () {
-                            print("Filter-----------");
+
                             setState(() {
                               userList= search.userTagList.where((element) => element.type.contains(search.result[index])).toList();
                             });

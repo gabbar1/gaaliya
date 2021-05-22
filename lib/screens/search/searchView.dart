@@ -79,8 +79,8 @@ class _SearchViewState extends State<SearchView> {
                     child: Container(
 
                       height: MediaQuery.of(context).size.height,
-                      child: ListView.builder(
-                          itemCount: userList.length == 0 ? search.userTagList.length<10 ? search.userTagList.length :  startIndex +1 : userList.length + userList.length,
+                      child:search.userTagList.length !=0 || userList.length != 0? ListView.builder(
+                          itemCount: userList.length == 0 ? search.userTagList.length<10 ? search.userTagList.length :  startIndex +1 : userList.length ,
                           itemBuilder: (context, index) {
                             if(index == startIndex){
                               return   nextIndex(index,search);
@@ -125,7 +125,8 @@ class _SearchViewState extends State<SearchView> {
                               );
                             }
 
-                          }),
+                          })
+                          : Center(child: Container(child: CircularProgressIndicator(strokeWidth: 20,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
                     )),
 
               ],

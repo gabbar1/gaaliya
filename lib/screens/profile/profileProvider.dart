@@ -14,11 +14,11 @@ class ProfileProvider extends ChangeNotifier{
   Future<void> storyList({String uid}) async{
     transRef.child("story").child(uid).once().then((DataSnapshot snapshot) {
       storyLists.clear();
-      print("-----------------------------------");
+
 
       if (snapshot != null) {
         Map<dynamic, dynamic> listComment = snapshot.value;
-        print(listComment);
+
         if( listComment !=null){
           listComment.forEach((key, value) {
             StoryModel storyModel = StoryModel.fromJson({
@@ -41,8 +41,7 @@ class ProfileProvider extends ChangeNotifier{
     transRef.child("followlist").child(uid).once().then((DataSnapshot snapshot){
       followList.clear();
       Map<dynamic, dynamic> listFollowers = snapshot.value;
-      print("--------------followerList------------");
-      print(snapshot.value);
+
       if(snapshot.value!=null){
         listFollowers.forEach((key, value) {
           FollowModel followModel = FollowModel.fromJson({
@@ -56,9 +55,7 @@ class ProfileProvider extends ChangeNotifier{
         followList.forEach((element) {
           var count =0;
           count = count +1;
-          print(element.userName);
-          print(element.key);
-          print(count.toString());
+
         });
       }
     });

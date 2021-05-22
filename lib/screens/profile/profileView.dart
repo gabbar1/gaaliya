@@ -52,11 +52,6 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    print("---------------checkCurrentUser----------------");
-    print(widget.currentUser);
-    print(uid);
-    print(Provider.of<ProfileProvider>(context, listen: false).followList.where((element) => element.userID == uid));
-    print(DateTime.now());
     return Scaffold(
 
         extendBody: true,
@@ -179,8 +174,7 @@ class _ProfileViewState extends State<ProfileView> {
 
                           return GestureDetector(
                             onTap: () {
-                              print(uid);
-                              print(widget.currentUser);
+
                               profile.followList.where((element) => element.userID == widget.currentUser).isEmpty ? profile.follow(uid: uid,followerID: widget.currentUser,followerName: widget.currentUsername).then((value) {
                                 profile.following(uid: uid);
                                 user.getUserDetails();
@@ -264,12 +258,21 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                                 itemBuilder: (context, postList) {
                                   return InkWell(
+                                    onLongPress: (){
+                                      largeImage(profile:post.userPostList[postList].imageUrl );
+                                    },
                                     onTap: (){
                                       Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
                                         return App(userPofile:  post.userPostList[postList].userID,);
                                       }));
                                     },
                                     child: CachedNetworkImage(
+                                        placeholder: (context, url) =>material.Container(
+                                          child: Center(child: material.Container( height: 50.0,
+                                            width: 50.0,child: CircularProgressIndicator(strokeWidth: 5,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
+                                          height: 50.0,
+                                          width: 50.0,
+                                        ),
                                         imageUrl:
                                             post.userPostList[postList].imageUrl,
                                         imageBuilder: (context, imageProvider) =>
@@ -382,7 +385,7 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Column(
                   children: [
                     Container(
-                      height: 120,
+                      height: 130,
                     ),
                     Container(
                       height:50,
@@ -463,17 +466,13 @@ class _ProfileViewState extends State<ProfileView> {
                     GestureDetector(
                       onTap: (){
                         bool isUpdate =true;
-                        print("------------FolderName-----------");
-                        print(folder);
+
                         var upload = Provider.of<GaliImageProvider>(context, listen: false);
                         if(galiUserID !=userIDController.text){
                           FirebaseDatabase.instance.reference().child('user').once().then((DataSnapshot snapshot){
                             if(snapshot.value!=null){
                               Map<dynamic, dynamic> listPost = snapshot.value;
                               listPost.forEach((key, value) {
-                                print("------------GaliUserID----------");
-                                print(galiUserID);
-                                print(value['galiUserID']);
                                 if(value['galiUserID'] == userIDController.text){
                                   setState(() {
                                     isUpdate = false;
@@ -496,8 +495,22 @@ class _ProfileViewState extends State<ProfileView> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.all(Radius.circular(30))),
+                            gradient: LinearGradient(
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft,
+                              stops: [
+                                0.1,
+                                1.0,
+                                1.0,
+                              ],
+                              colors: [
+                                containerColor.Color(0xFF3897F0),
+                                containerColor.Color(0xFFFC00FF),
+                                containerColor.Color(0xB2FEFA),
+                              ],
+                            ),
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(25))),
                         height: 50,
                         width: MediaQuery.of(context).size.width/2,
                         child: Center(child: Text("Save")),
@@ -533,7 +546,6 @@ class _ProfileViewState extends State<ProfileView> {
                    Map<dynamic, dynamic> listTag = snapshot.value;
                    listTag.forEach((key, value) {
                      if(value["userID"] == unfollowUser){
-                       print(value);
                        FirebaseDatabase.instance.reference().child('followlist').child(uid).child(key).update(
                            {
                              'userName':null,

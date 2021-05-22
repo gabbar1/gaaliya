@@ -26,13 +26,13 @@ class DashBoardProvider extends ChangeNotifier {
   Future<void> getPostList({String filterID}) async {
     transRef.child("content").once().then((DataSnapshot snapshot) {
       postList.clear();
-      print("-----------------------------------");
+
 
       if (snapshot != null) {
         Map<dynamic, dynamic> listPost = snapshot.value;
 
         listPost.forEach((key, value) {
-          print(value);
+
           PostModel postModel = PostModel.fromJson({
             'gali': value['gali'],
             'postID': value['postID'],
@@ -45,21 +45,18 @@ class DashBoardProvider extends ChangeNotifier {
           });
         //  postList.add(postModel);
           filterPostList.add(postModel);
-          print("---------------BeforeFilter------------------");
-          print(postList.length);
+
           if(filterID!=null){
-            print("---------------Filter------------------");
-            print(filterID);
+
             postList = filterPostList.where((element) => element.userID == filterID).toList();
 
             postList.sort((a, b) => DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
           }else{
-            print("------------ErrorFilter------------");
+
             postList = filterPostList;
             postList.sort((a, b) => DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
           }
-          print("---------------afterFilter------------------");
-          print(postList.length);
+
 
         });
         notifyListeners();
@@ -68,8 +65,6 @@ class DashBoardProvider extends ChangeNotifier {
   }
 
   Future<void> setLikesList({String postID, int like, String uid, String node}) async {
-    print("----------------------------------------likesssssssssssssssssss" +
-        like.toString());
 
     transRef
         .child("likes")
@@ -99,8 +94,6 @@ class DashBoardProvider extends ChangeNotifier {
       postID = "GL_" +
           userID +
           (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
-      print(postID);
-      print(value.value.length);
       Navigator.pop(context);
       transRef.child("content").push().set({
         'gali': postContent,
@@ -129,8 +122,7 @@ class DashBoardProvider extends ChangeNotifier {
       postID = "GL_" +
           userID +
           (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
-      print(postID);
-      print(value.value.length);
+
 
       transRef.child("user").child(userID).update({
         "profile":contentURL,
@@ -159,7 +151,6 @@ class DashBoardProvider extends ChangeNotifier {
             .first,
         builder: (BuildContext context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-//print('project snapshot data is: ${snap.data}');
             return SvgPicture.asset("assets/icons/beforeLike.svg");
           } else {
             if (snap.hasError) {
@@ -180,13 +171,10 @@ class DashBoardProvider extends ChangeNotifier {
   Future<void> getUserDetails({String uid}) async {
     transRef.child("user").once().then((DataSnapshot snapshot) {
       userDetails.clear();
-      print("-----------------------------------");
-
       if (snapshot != null) {
         Map<dynamic, dynamic> listPost = snapshot.value;
 
         listPost.forEach((key, value) async{
-          print(value);
           UserModel postModel = UserModel.fromJson({
           'profile' : value['profile'],
           'userEmail' : value['userEmail'],
@@ -209,13 +197,12 @@ class DashBoardProvider extends ChangeNotifier {
   Future<void> getUserPostList({String uid}) async {
     transRef.child("content").once().then((DataSnapshot snapshot) {
       userPostList.clear();
-      print("-------------------haga----------------");
 
       if (snapshot != null) {
         Map<dynamic, dynamic> listPost = snapshot.value;
 
         listPost.forEach((key, value) {
-         // print(value);
+
           PostModel postModel = PostModel.fromJson({
             'gali': value['gali'],
             'postID': value['postID'],
@@ -231,7 +218,7 @@ class DashBoardProvider extends ChangeNotifier {
           userPostList.removeWhere((element) => element.userID != uid);
           userPostList.sort((a, b) =>
               DateTime.parse(b.time).compareTo(DateTime.parse(a.time)));
-          print(userPostList);
+
         });
         notifyListeners();
       }

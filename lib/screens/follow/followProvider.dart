@@ -18,7 +18,6 @@ class FollowProvider extends ChangeNotifier{
         Map<dynamic, dynamic> followers = snapshot.value;
         followers.forEach((key, value) {
           followerList.add(value['userID']);
-          print(followerList);
         });
       }
     });
@@ -27,11 +26,8 @@ class FollowProvider extends ChangeNotifier{
       followList.clear();
       if(snapshot.value !=null){
         Map<dynamic, dynamic> listTag = snapshot.value;
-        print("------------TagList-----------");
         listTag.forEach((key,value){
 
-          print(value['userID']);
-          print("--------follower--------");
           UserModel userModel = UserModel.fromJson({
             'profile' : value['profile'],
             'userEmail' : value['userEmail'],
@@ -44,7 +40,6 @@ class FollowProvider extends ChangeNotifier{
           });
 followerList.forEach((element) {
 
-  print(element);
   if(element.contains(value['userID'])){
     followList.add(userModel);
     followList.forEach((element) {
@@ -68,19 +63,12 @@ followerList.forEach((element) {
 
       if(snapshot.value!=null){
         Map<dynamic, dynamic> followers = snapshot.value;
-        print("-----------follower==================");
-        print(uid);
+
         followers.forEach((parent, value) {
-          print("----------parent---------");
-          print(parent);
           if(parent !=uid){
             Map<dynamic, dynamic> followersChild = value;
             followersChild.forEach((key, value) {
-              print(parent);
               if(value['userID']== uid){
-                print("------------keyofparent-------------");
-                print(key);
-                print(parent);
                 followerList.add(parent);
               }
 
@@ -97,8 +85,6 @@ followerList.forEach((element) {
         Map<dynamic, dynamic> listTag = snapshot.value;
 
         listTag.forEach((key,value){
-          print("------------TagList-----------");
-          print(value);
 
             UserModel userModel = UserModel.fromJson({
               'profile' : value['profile'],
@@ -113,7 +99,6 @@ followerList.forEach((element) {
 
           followerList.forEach((element) {
 
-            print(element);
             if(element.contains(value['userID'])){
               followList.add(userModel);
               followList.forEach((element) {

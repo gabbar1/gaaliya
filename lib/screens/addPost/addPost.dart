@@ -1,20 +1,18 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as container;
-import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:gaaliya/screens/galiImages/galiImagesView.dart';
 import 'package:gaaliya/screens/galiLib/galiLibView.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:googleapis/appengine/v1.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:o_color_picker/o_color_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -43,6 +41,7 @@ class _AddPostViewState extends State<AddPostView> {
   double fontSize = 20;
   String hint = "type gaali";
   bool isTextColorChange = false;
+  Color selectedColor = Colors.black;
   @override
   void initState() {
     // TODO: implement initState
@@ -54,15 +53,18 @@ class _AddPostViewState extends State<AddPostView> {
   }
 
   ScreenshotController screenshotController = ScreenshotController();
+  ScreenshotController imageController = ScreenshotController();
+  GlobalKey scafoldKey = GlobalKey();
   GlobalKey imagekey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     var postP = Provider.of<DashBoardProvider>(context, listen: false);
     return Consumer<GaliImageProvider>(builder: (context, imageLink, child) {
-      return Scaffold(
-          backgroundColor: back,
+      return WillPopScope(child: Scaffold(
+        // backgroundColor: back,
           body: InkWell(
             onTap: () {
+              FocusScope.of(context).unfocus();
               setState(() {
                 imageHide = false;
                 textHide = false;
@@ -72,25 +74,34 @@ class _AddPostViewState extends State<AddPostView> {
             },
             child: RepaintBoundary(
               child: Screenshot(
-                key: imagekey,
+                key: scafoldKey,
                 controller: screenshotController,
                 child: Stack(
                   children: [
-                    container.Container(
-                        height: MediaQuery.of(context).size.height,
-                        decoration: imageLink.imageLink != null
-                            ?imageLink.imageLink.contains("https") ? BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(imageLink.imageLink),
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ) : BoxDecoration(
-                          image: DecorationImage(
-                            image: FileImage(File(imageLink.imageLink)),
-                            fit: BoxFit.fitWidth,
-                          ),
-                        )
-                            : null
+                    RepaintBoundary(
+                      child: Screenshot(
+                        key: imagekey,
+                        controller: imageController,
+                        child: container.Container(
+                            color: imageLink.imageLink == null ? back : null,
+                            height: MediaQuery.of(context).size.height,
+                            decoration: imageLink.imageLink != null
+                                ? imageLink.imageLink.contains("https")
+                                ? BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(imageLink.imageLink),
+                                fit: BoxFit.fitWidth,
+                              ),
+                            )
+                                : BoxDecoration(
+                              image: DecorationImage(
+                                image:
+                                FileImage(File(imageLink.imageLink)),
+                                fit: BoxFit.fitWidth,
+                              ),
+                            )
+                                : null),
+                      ),
                     ),
                     Positioned(
                       left: offset.dx,
@@ -109,62 +120,68 @@ class _AddPostViewState extends State<AddPostView> {
                               right: 50),
                           // height: MediaQuery.of(context).size.height,
                           width: MediaQuery.of(context).size.width,
-                          child: TextFormField(
-                            //  focusNode: _focusNode,
-                            maxLines: 50,
-                            onChanged: (val) {
-                              setState(() {
-                                isVisible = false;
-                                isTextColorChange = true;
-                              });
-                            },
-                            controller: controller,
-                            style: font == 1
-                                ? GoogleFonts.rokkitt(
-
-                                color: Colors.white,
-                                fontSize: fontSize)
-                                : font == 2
-                                ? GoogleFonts.specialElite(
-                                fontStyle: FontStyle.italic,
-                                fontSize: fontSize)
-                                : font == 3
-                                ? GoogleFonts.sofia(
-                                fontStyle: FontStyle.italic,
-                                fontSize: fontSize)
-                                : font == 4
-                                ? GoogleFonts.sofadiOne(
-                                fontStyle: FontStyle.italic,
-                                fontSize: fontSize)
-                                : font == 5
-                                ? GoogleFonts.signika(
-                                fontStyle: FontStyle.italic,
-                                fontSize: fontSize)
-                                : font == 6
-                                ? GoogleFonts.sevillana(
-                                fontStyle:
-                                FontStyle.italic,
-                                fontSize: fontSize)
-                                : GoogleFonts.rye(
-                                fontStyle:
-                                FontStyle.italic,
-                                fontSize: fontSize),
-                            decoration: new InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
-                                border: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                hintText: hint),
-                            validator: (value) {
-                              if (value.toString().isEmpty) {
-                                return "tr('field_required')";
-                                //"Please enter valid floor number";
-                              } else {
-                                return null;
-                              }
-                            },
+                          child: Scrollbar(
+                            child: TextFormField(
+                              //  focusNode: _focusNode,
+                              maxLines: null,
+                              onChanged: (val) {
+                                setState(() {
+                                  isVisible = false;
+                                  isTextColorChange = true;
+                                });
+                              },
+                              controller: controller,
+                              style: font == 1
+                                  ? GoogleFonts.rokkitt(
+                                  color: selectedColor, fontSize: fontSize)
+                                  : font == 2
+                                  ? GoogleFonts.specialElite(
+                                color: selectedColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: fontSize)
+                                  : font == 3
+                                  ? GoogleFonts.sofia(
+                                color: selectedColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: fontSize)
+                                  : font == 4
+                                  ? GoogleFonts.sofadiOne(
+                                color: selectedColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: fontSize)
+                                  : font == 5
+                                  ? GoogleFonts.signika(
+                                color: selectedColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: fontSize)
+                                  : font == 6
+                                  ? GoogleFonts.sevillana(
+                                color: selectedColor,
+                                  fontStyle:
+                                  FontStyle.italic,
+                                  fontSize: fontSize)
+                                  : GoogleFonts.rye(
+                                color: selectedColor,
+                                  fontStyle:
+                                  FontStyle.italic,
+                                  fontSize: fontSize),
+                              decoration: new InputDecoration(
+                                  contentPadding: EdgeInsets.all(10),
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  hintText: hint),
+                              validator: (value) {
+                                if (value.toString().isEmpty) {
+                                  return "tr('field_required')";
+                                  //"Please enter valid floor number";
+                                } else {
+                                  return null;
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -182,7 +199,7 @@ class _AddPostViewState extends State<AddPostView> {
                             Future.delayed(Duration(seconds: 1), () {
                               Provider.of<GaliImageProvider>(context,
                                   listen: false)
-                                  .shareScreenshot(imagekey)
+                                  .shareScreenshot(imageLink.imageLink != null ? imagekey : scafoldKey)
                                   .then((val) {
                                 Navigator.push(
                                   context,
@@ -201,14 +218,26 @@ class _AddPostViewState extends State<AddPostView> {
                                     bottom: 25,
                                     left: 130,
                                     right: 130,
-                                    top:
-                                    MediaQuery.of(context).size.height -
+                                    top: MediaQuery.of(context).size.height -
                                         100),
                                 height: 55,
                                 decoration: BoxDecoration(
-                                    color: const Color(0xFF0ED2F7),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(25))),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      stops: [
+                                        0.1,
+                                        1.0,
+                                        1.0,
+                                      ],
+                                      colors: [
+                                        Color(0xFF3897F0),
+                                        Color(0xFFFC00FF),
+                                        Color(0xB2FEFA),
+                                      ],
+                                    ),
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
                                 child: Container(
                                   child: Center(
                                       child: Text(
@@ -223,8 +252,7 @@ class _AddPostViewState extends State<AddPostView> {
                         ? container.Container(
                         margin: EdgeInsets.only(
                             bottom: 25,
-                            left:
-                            MediaQuery.of(context).size.width / 2 + 150,
+                            left: MediaQuery.of(context).size.width / 2 + 150,
                             right: 20,
                             top: 45),
                         height: MediaQuery.of(context).size.height / 3,
@@ -232,8 +260,7 @@ class _AddPostViewState extends State<AddPostView> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             SizedBox(
-                              height:
-                              MediaQuery.of(context).size.height / 20,
+                              height: MediaQuery.of(context).size.height / 20,
                             ),
                             InkWell(
                               onTap: () {
@@ -246,8 +273,7 @@ class _AddPostViewState extends State<AddPostView> {
                                 });
                               },
                               child: textHide == false
-                                  ? SvgPicture.asset(
-                                  "assets/icons/text.svg")
+                                  ? SvgPicture.asset("assets/icons/text.svg")
                                   : SvgPicture.asset(
                                 "assets/icons/text.svg",
                                 color: Colors.transparent,
@@ -265,8 +291,7 @@ class _AddPostViewState extends State<AddPostView> {
                                 });
                               },
                               child: imageHide == false
-                                  ? SvgPicture.asset(
-                                  "assets/icons/color.svg")
+                                  ? SvgPicture.asset("assets/icons/color.svg")
                                   : SvgPicture.asset(
                                 "assets/icons/color.svg",
                                 color: Colors.transparent,
@@ -278,8 +303,7 @@ class _AddPostViewState extends State<AddPostView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          GaliImagesView()),
+                                      builder: (context) => GaliImagesView()),
                                 );
                                 setState(() {
                                   text = false;
@@ -302,16 +326,14 @@ class _AddPostViewState extends State<AddPostView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          GaliLibView()),
+                                      builder: (context) => GaliLibView()),
                                 );
                               },
-                              child: SvgPicture.asset(
-                                  "assets/icons/gaaliya.svg"),
+                              child:
+                              SvgPicture.asset("assets/icons/gaaliya.svg"),
                             ),
                             SizedBox(
-                              height:
-                              MediaQuery.of(context).size.width / 20,
+                              height: MediaQuery.of(context).size.width / 20,
                             )
                           ],
                         ))
@@ -341,16 +363,14 @@ InkWell(
                           ),
                           height: 55,
                           decoration: BoxDecoration(
-                              color: const Color(0xFF000000)
-                                  .withOpacity(.5),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(25))),
+                              color:
+                              const Color(0xFF000000).withOpacity(.5),
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(25))),
                           child: Row(
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context)
-                                    .size
-                                    .width /
+                                width: MediaQuery.of(context).size.width /
                                     10,
                               ),
                               InkWell(
@@ -454,9 +474,7 @@ InkWell(
                                         "assets/icons/text_seven.png")),
                               ),
                               SizedBox(
-                                width: MediaQuery.of(context)
-                                    .size
-                                    .width /
+                                width: MediaQuery.of(context).size.width /
                                     10,
                               )
                             ],
@@ -492,6 +510,62 @@ InkWell(
                         : Container(),
                     isVisible
                         ? Positioned(
+                        width: MediaQuery.of(context).size.width,
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(context: context, builder: (BuildContext context){
+                              return AlertDialog(content: OColorPicker(
+                                selectedColor: selectedColor,
+                                colors: primaryColorsPalette,
+                                onColorChange: (color) {
+                                  setState(() {
+                                    selectedColor = color;
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                              ),);
+                            });
+
+                          },
+                          child: Center(
+                            child: container.Container(
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.only(
+                                    top: 50,
+                                    left: 180,
+                                    right: 180,
+                                    bottom: MediaQuery.of(context).size.height -
+                                        100),
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topRight,
+                                      end: Alignment.bottomLeft,
+                                      stops: [
+                                        0.1,
+                                        1.0,
+                                        1.0,
+                                      ],
+                                      colors: [
+                                        Color(0xFF3897F0),
+                                        Color(0xFFFC00FF),
+                                        Color(0xB2FEFA),
+                                      ],
+                                    ),
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
+                                child: Container(
+                                  child: Center(
+                                      child: Text(
+                                        "Text",
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                )),
+                          ),
+                        ))
+                        : Container(),
+                    isVisible
+                        ? Positioned(
                         top: MediaQuery.of(context).size.height / 6,
                         width: MediaQuery.of(context).size.width,
                         child: imageHide != false
@@ -502,22 +576,21 @@ InkWell(
                           ),
                           height: 55,
                           decoration: BoxDecoration(
-                              color: const Color(0xFF000000)
-                                  .withOpacity(.5),
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(25))),
+                              color:
+                              const Color(0xFF000000).withOpacity(.5),
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(25))),
                           child: Row(
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context)
-                                    .size
-                                    .width /
+                                width: MediaQuery.of(context).size.width /
                                     10,
                               ),
                               InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.green;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -529,6 +602,7 @@ InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.orange;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -540,6 +614,7 @@ InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.lightBlueAccent;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -551,6 +626,7 @@ InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.lightGreen;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -562,6 +638,7 @@ InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.yellow;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -573,6 +650,7 @@ InkWell(
                                 onTap: () {
                                   setState(() {
                                     back = Colors.pinkAccent;
+                                    imageLink.imageLink = null;
                                   });
                                 },
                                 child: Center(
@@ -580,9 +658,7 @@ InkWell(
                                         "assets/icons/color_six.png")),
                               ),
                               SizedBox(
-                                width: MediaQuery.of(context)
-                                    .size
-                                    .width /
+                                width: MediaQuery.of(context).size.width /
                                     10,
                               )
                             ],
@@ -596,7 +672,14 @@ InkWell(
                 ),
               ),
             ),
-          ));
+          )), onWillPop:(){
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    HomeNavigator()),
+                (route) => false);
+      } );
     });
   }
 }
@@ -648,7 +731,6 @@ class _EditImageState extends State<EditImage> {
                   width: MediaQuery.of(context).size.width,
                   child: GestureDetector(
                     onTap: () {
-
                       Provider.of<GaliImageProvider>(context, listen: false)
                           .uploadFileToGoogleDrive(
                               filename: imageLink.filename,
@@ -667,9 +749,22 @@ class _EditImageState extends State<EditImage> {
                               top: MediaQuery.of(context).size.height - 100),
                           height: 55,
                           decoration: BoxDecoration(
-                              color: const Color(0xFF0ED2F7),
+                              gradient: LinearGradient(
+                                begin: Alignment.topRight,
+                                end: Alignment.bottomLeft,
+                                stops: [
+                                  0.1,
+                                  1.0,
+                                  1.0,
+                                ],
+                                colors: [
+                                  Color(0xFF3897F0),
+                                  Color(0xFFFC00FF),
+                                  Color(0xB2FEFA),
+                                ],
+                              ),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(25))),
+                              BorderRadius.all(Radius.circular(25))),
                           child: Container(
                             child: Center(
                                 child: Text(

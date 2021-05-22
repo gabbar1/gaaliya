@@ -35,6 +35,8 @@ dependencies:
   file_picker: ^3.0.1
   flutter_svg: ^0.22.0
   image_picker: ^0.7.4
+  transparent_image: ^2.0.0
+  o_color_picker: ^1.0.1
   flutter_native_admob: ^2.1.0+3
   shared_preferences: ^2.0.5
   animator: ^3.0.0

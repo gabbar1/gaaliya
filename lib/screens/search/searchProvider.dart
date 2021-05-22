@@ -17,8 +17,6 @@ class SearchProvider extends ChangeNotifier{
         Map<dynamic, dynamic> listTag = snapshot.value;
 
         listTag.forEach((key,value){
-          print("------------TagList-----------");
-          print(value);
 
           UserModel userModel = UserModel.fromJson({
             'profile' : value['profile'],

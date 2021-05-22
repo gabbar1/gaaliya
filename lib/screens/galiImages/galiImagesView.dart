@@ -29,16 +29,12 @@ class _GaliImagesViewState extends State<GaliImagesView> {
     Provider.of<GaliImageProvider>(context, listen: false)
         .listGaliImages
         .forEach((element) {
-      print(element.name);
-      print(element.key);
-      print(element.image);
-      print(element.type);
+
     });
     return Scaffold(
       backgroundColor: material.Color(0xFF767680),
       body: Consumer<GaliImageProvider>(builder: (context, type, child) {
-        print("--------------");
-        print(type.lst);
+
         return material.Container(
           height: MediaQuery.of(context).size.height,
           margin: EdgeInsets.only(top: 50, left: 10, right: 10),
@@ -79,7 +75,7 @@ class _GaliImagesViewState extends State<GaliImagesView> {
                 margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height / 5),
                 height: MediaQuery.of(context).size.height,
-                child: ListView.builder(
+                child:type.lst.length!=0 || type.listGaliImages.length!=0 ? ListView.builder(
                     itemCount:type.lst.isEmpty ? type.listGaliImages.length:type.lst.length,
                     itemBuilder: (context, index) {
 
@@ -92,12 +88,18 @@ class _GaliImagesViewState extends State<GaliImagesView> {
                           margin: EdgeInsets.only(top: 10,left: 10,right: 10),
                             height: MediaQuery.of(context).size.height / 3,
                             child: CachedNetworkImage(
+                              placeholder: (context, url) =>material.Container(
+                                child: Center(child: material.Container( height: 100.0,
+                                  width: 100.0,child: CircularProgressIndicator(strokeWidth: 5,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
+                                height: 100.0,
+                                width: 100.0,
+                              ),
                               alignment: Alignment.center,
                               imageUrl:type.lst.isEmpty?  type.listGaliImages[index].image : type.lst[index].image,
                               fit: BoxFit.fill,
                             )),
                       );
-                    }),
+                    }) :Center(child: material.Container(child: CircularProgressIndicator(strokeWidth: 20,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
               ),
               material.Container(
                 margin: EdgeInsets.only(
@@ -122,14 +124,11 @@ class _GaliImagesViewState extends State<GaliImagesView> {
                               ),
                             ),
                           ),onTap: (){
-                            print("Filter-----------");
+
                             setState(() {
                               type.lst=  type.listGaliImages.where((element) => element.type.contains(type.result[index])).toList();
                             });
 
-                           print(type.lst.length);
-                           print(type.result[index]);
-                            print(type.listGaliImages.length);
                           },);
                         }),
                   ),

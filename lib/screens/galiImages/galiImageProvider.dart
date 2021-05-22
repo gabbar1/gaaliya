@@ -37,9 +37,7 @@ class GaliImageProvider extends ChangeNotifier{
       listGaliImages.clear();
       type.clear();
       if(snapshot!=null){
-       // print(snapshot.value);
         snapshot.value.forEach((key,val){
-         // print(val);
           GaliImageModel listGaliImage = GaliImageModel.fromJson({
             'image':val['image'],
             'name':val['name'],
@@ -91,21 +89,16 @@ class GaliImageProvider extends ChangeNotifier{
       final cropImage = decodeImage(File(fullPath).readAsBytesSync());
 
       // Resize the image to a 120x? thumbnail (maintaining the aspect ratio).
-      final thumbnail = copyResize(cropImage, width: 300,height:300,interpolation: Interpolation.average);
+      final thumbnail = copyResize(cropImage, width: 300,interpolation: Interpolation.average);
 
       // Save the thumbnail as a PNG.
       final String newFullPath = '$dir/${DateTime.now().millisecond}.png';
       await File(newFullPath).writeAsBytesSync(encodePng(thumbnail));
       capturedNewFile = File(newFullPath);
-      print("--------------------");
-      print(capturedNewFile);
-      print(newFullPath);
       filename=newFullPath.split("/").last;
       notifyListeners();
 
-    /*  await Share.file("G GATE Visitor Invitation", "Invitation.png", pngBytes,
-          "image/png" //,
-      );*/
+
     } catch (e) {
       print("Share Screenshot Error :: " + e.toString());
     }
@@ -117,29 +110,31 @@ class GaliImageProvider extends ChangeNotifier{
     final googleSignIn =
     signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-    print("User account $account");
+
 
     final authHeaders = await account.authHeaders;
     final authenticateClient = GoogleAuthClient(authHeaders);
     final driveApi = drive.DriveApi(authenticateClient);
 
-    print(image.path);
+
     File croppedFile = File(image.path);
     drive.File fileUpload = drive.File();
     drive.Permission per = drive.Permission();
+ // "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8"
     per.type = "anyone";
     per.role = "reader";
     fileUpload.name = filename;
   /*  fileUpload.parents = [prefs.getString("folderID")];
-    print(prefs.getString("folderID"));*/
+    */
     final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
     try
     {
       driveApi.permissions.create(per, result.id);
-      print("00000000000000000000000000000000000");
-      print(result.id);
-      print("https://drive.google.com/uc?export=download&id="+result.id);
-      Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:"https://drive.google.com/uc?export=download&id="+result.id  );
+      var googleURL = "https://www.googleapis.com/drive/v3/files/";
+      var exportURL = "?alt=media&key=";
+      var api = "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8";
+      var finalURL = googleURL+result.id+exportURL+api;
+      Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:finalURL );
       //Creating Permission after folder creation.
     }
     catch (Exception)
@@ -154,29 +149,33 @@ class GaliImageProvider extends ChangeNotifier{
     final googleSignIn =
     signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-    print("User account $account");
+
 
     final authHeaders = await account.authHeaders;
     final authenticateClient = GoogleAuthClient(authHeaders);
     final driveApi = drive.DriveApi(authenticateClient);
 
-    print("---------filePath-------------");
-    print(image.path);
     File croppedFile = File(image.path);
     drive.File fileUpload = drive.File();
     drive.Permission per = drive.Permission();
     per.type = "anyone";
     per.role = "reader";
     fileUpload.name = filename;
-    print(folder);
+
     final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
+
     try
     {
       driveApi.permissions.create(per, result.id);
-      print("00000000000000000000000000000000000");
-      print(result.id);
-      print("https://drive.google.com/uc?export=download&id="+result.id);
-      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:"https://drive.google.com/uc?export=download&id="+result.id  );
+
+      var googleURL = "https://www.googleapis.com/drive/v3/files/";
+      var exportURL = "?alt=media&key=";
+      var api = "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8";
+      var finalURL = googleURL+result.id+exportURL+api;
+
+      //"https://www.googleapis.com/drive/v3/files/1IvtWn9HktActV-IiV2gUMTiNH0mM6RxF?alt=media&key=AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8"
+
+      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:finalURL  );
       //Creating Permission after folder creation.
     }
     catch (Exception)

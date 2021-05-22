@@ -16,8 +16,7 @@ class GaliLibProvider extends ChangeNotifier{
         Map<dynamic, dynamic> listTag = snapshot.value;
 
         listTag.forEach((key,value){
-          print("------------TagList-----------");
-          print(value);
+
 
           GaliLibModel userModel = GaliLibModel.fromJson({
           'content' : value['content'],
