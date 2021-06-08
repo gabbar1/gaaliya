@@ -1,18 +1,24 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
 import 'package:flutter_native_admob/native_admob_controller.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gaaliya/helper/helper.dart';
-
 import 'package:gaaliya/screens/comments/commentView.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:share/share.dart';
 import 'dashBoardProvider.dart';
 
 class App extends StatefulWidget {
@@ -25,12 +31,11 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   RefreshController refreshController;
   DatabaseReference transRef = FirebaseDatabase.instance.reference();
-  final ImagePicker _picker = ImagePicker();
   int startIndex = 10;
   ScrollController scrollController = new ScrollController();
   bool isLoading = false;
   String uid;
-  static const _adUnitID = "ca-app-pub-3940256099942544/8135179316";
+
 
   final _nativeAdController = NativeAdmobController();
   @override
@@ -56,12 +61,14 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF232027),
       appBar: AppBar(
         backgroundColor: Color(0xFF232027),
         title: Text(
           "Gaaliya",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Color(0xFFD8D6D7)),
         ),
+  /*      actions: [SvgPicture.asset("assets/images/bell.svg"),SizedBox(width: 20,)],*/
       ),
       body: Consumer<DashBoardProvider>(builder: (context, post, child) {
         return SmartRefresher(
@@ -74,7 +81,7 @@ class _AppState extends State<App> {
           child:  post.postList.isNotEmpty ? ListView.separated(
 
               controller: scrollController,
-              itemCount: post.postList.length <10 ? post.postList.length+post.postList.length/10 :  startIndex +1,
+              itemCount: post.postList.length <10 ? post.postList.length :  startIndex +1,
               separatorBuilder: (context,index){
                 if(index%10 == 0&& index !=0){
                   return Container(
@@ -83,7 +90,7 @@ class _AppState extends State<App> {
                     margin: EdgeInsets.only(bottom: 20.0),
                     child: NativeAdmob(
                       // Your ad unit id
-                      adUnitID: _adUnitID,
+                      adUnitID: addUnit,
                       numberAds: 3,
                       controller: _nativeAdController,
                       type: NativeAdmobType.full,
@@ -98,41 +105,43 @@ class _AppState extends State<App> {
                 if(posts == startIndex){
                   return nextIndex(posts, post);
                 }  else{
-                  return Column(
+                  return Container(margin: EdgeInsets.only(top: 10),child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       StreamBuilder<Event>(stream: FirebaseDatabase.instance.reference().child("user").child(post.postList[posts].userID).onValue,builder: (context,AsyncSnapshot<Event> event){
                         if(event.hasData){
-                          return Row(children: [
+                          return Row(  children: [
+
 
                             InkWell(
-                              onTap: (){
+                              child: Container(margin: EdgeInsets.only(left: 10),
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Color(0xffD8D6D9),
+                                  child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundImage: NetworkImage(event.data.snapshot.value['profile']== null ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg":event.data.snapshot.value['profile'])),
+                                ),
+                              ),
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ProfileView(currentUser:event.data.snapshot.value['userID'] ,currentUsername: event.data.snapshot.value['userName'] ,)),
+                                      builder: (context) => ProfileView(currentUser:event.data.snapshot.value['userID'] ,currentUsername: event.data.snapshot.value['userName'],currentUserEmail: event.data.snapshot.value['userEmail'] ,)),
                                 );
-                              }
-                              ,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 20, top: 20),
-                                child: ClipOval(
-                                  child: CachedNetworkImage(imageUrl:event.data.snapshot.value['profile']== null ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg":event.data.snapshot.value['profile'],
-                                    height: 40,
-                                    width: 40,
-                                  ),
-                                ),
-                              ),
+                              },
                             ),
-                            Container(
-                                margin: EdgeInsets.only(left: 20, top: 20),
-                                child: Text(event.data.snapshot==null ? "user name":event.data.snapshot.value['userName'])),
+                            Column(crossAxisAlignment: CrossAxisAlignment.start,children: [Container(
+                                margin: EdgeInsets.only(left: 5, ),
+                                child: Text(event.data.snapshot==null ? "user name":event.data.snapshot.value['userName'],  style: TextStyle(color: Colors.white))),Container(
+                                margin: EdgeInsets.only(left: 5, top: 5),
+                                child: Text(event.data.snapshot==null ? "no_userID":event.data.snapshot.value['galiUserID'],  style: TextStyle(color: Colors.white))),],)
                           ],);
                         } else{
                           return Row(children: [
 
                             Container(
-                              margin: EdgeInsets.only(left: 20, top: 20),
+                              margin: EdgeInsets.only(left: 20,),
                               child: ClipOval(
                                 child: CachedNetworkImage(imageUrl: "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg",
                                   height: 40,
@@ -141,7 +150,7 @@ class _AppState extends State<App> {
                               ),
                             ),
                             Container(
-                                margin: EdgeInsets.only(left: 20, top: 20),
+                                margin: EdgeInsets.only(left: 20, top: 5),
                                 child: Text( "user name")),
                           ],);
                         }
@@ -150,7 +159,15 @@ class _AppState extends State<App> {
                         height: 10,
 
                       ),
-                      // FadeInImage.memoryNetwork( placeholder: kTransparentImage,image: post.postList[posts].imageUrl,),
+                      Container(margin: EdgeInsets.only(right: 20,bottom: 10),
+                        child: Row(children: [ Container(margin: EdgeInsets.only(left: 20,right: 20,bottom: 10),width: MediaQuery.of(context).size.width-120,child: Text( post.postList[posts].gali,style: TextStyle(color: Colors.pink,fontSize: 18,fontWeight: FontWeight.bold),),),Spacer(),
+                          InkWell(onTap: (){
+                            Clipboard.setData(ClipboardData(text:post.postList[posts].gali
+                            )).then((value) {
+                              Fluttertoast.showToast(msg: "gaali copied");
+                            });
+                          },child: SvgPicture.asset("assets/images/copy.svg")),],),
+                      ),
                       InkWell(onLongPress: (){
                         largeImage(profile:post.postList[posts].imageUrl );
                       },child: CachedNetworkImage(fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height/2,imageUrl: post.postList[posts].imageUrl,
@@ -166,12 +183,9 @@ class _AppState extends State<App> {
                       ),
                       Container(
                         margin: EdgeInsets.only(
-                            bottom: 25, left: 15, right: 15),
+                            bottom: 25, ),
                         height: 55,
-                        decoration: BoxDecoration(
-                            color: const Color(0xFF0E3311).withOpacity(0.25),
-                            borderRadius:
-                            BorderRadius.all(Radius.circular(25))),
+
                         child: Row(
                           children: [
                             Center(
@@ -182,7 +196,7 @@ class _AppState extends State<App> {
                                 onTap: () {
                                   transRef.child('user').child(uid).once().then((DataSnapshot snapshot){
                                     if(snapshot!=null){
-                                      Provider.of<ImageFile>(context,listen:false).sendNotification(title: snapshot.value['userName']+" has liked your post",topic: uid,subject: "New Like");
+                                      Provider.of<ImageFile>(context,listen:false).sendNotification(title: snapshot.value['userName']+" has liked your post",topic: post.postList[posts].userID,subject: "New Like");
                                     }
                                   });
 
@@ -215,23 +229,39 @@ class _AppState extends State<App> {
                                 EdgeInsets.only(bottom: 15, top: 15),
                                 height: 40,
                                 width: 40,
-                                child: Image.asset(
-                                    "assets/images/comments.png"),
+                                child: SvgPicture.asset(
+                                    "assets/images/comments.svg"),
                               ),
                             ),
                             Spacer(),
-                            Container(
+                            InkWell(child: Container(
                               margin: EdgeInsets.only(
                                   bottom: 15, top: 15, right: 40),
                               height: 20,
                               width: 20,
-                              child: Image.asset("assets/images/send.png"),
-                            ),
+                              child: SvgPicture.asset("assets/images/send.svg"),
+                            ),onTap: () async{
+
+                              if (Platform.isAndroid)  {
+                                final cache = await DefaultCacheManager();
+                                final file = await cache.getSingleFile(post.postList[posts].imageUrl);
+                                List<String> imgPath = [file.path];
+                                Share.shareFiles(imgPath,
+                                  subject: "Gaaliyaa",
+                                  text: post.postList[posts].gali+"\n\n"+"For more funny content download Gaaliya app now \n\n"+"https://play.google.com/store/apps/details?id=com.boss.gaaliya",
+                                );
+                              } else {
+                                Share.share('Gaaliyaa',
+                                  subject: post.postList[posts].gali,
+                                );
+                              }
+
+                            },),
                           ],
                         ),
                       )
                     ],
-                  );
+                  ),);
                 }
 
 
@@ -259,7 +289,4 @@ class _AppState extends State<App> {
 
       } else {
         startIndex = index + 10;
-      }
-    }
-  }
-}
+      }}}}

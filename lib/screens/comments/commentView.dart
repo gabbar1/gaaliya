@@ -34,7 +34,7 @@ class _CommentViewState extends State<CommentView> {
     // TODO: implement initState
     super.initState();
     Provider.of<CommentProvider>(context, listen: false).getCommentList(postID: widget.postID);
-    Provider.of<CommentProvider>(context, listen: false).UserTag();
+    Provider.of<CommentProvider>(context, listen: false).userTag();
     Provider.of<CommentProvider>(context, listen: false).commentList.clear();
     refreshController = RefreshController(initialRefresh: false);
     this.uid = '';
@@ -45,9 +45,11 @@ class _CommentViewState extends State<CommentView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child:  Scaffold(
+      backgroundColor: Color(0xFF232027),
       appBar: AppBar(
-        title: Text("Comment"),
+        backgroundColor: Color(0xFF232027),
+        title: Text("Comment",style: TextStyle(color: Colors.white),),
       ),
       body: Consumer<CommentProvider>(builder: (context, commentList, child) {
         return Column(
@@ -82,7 +84,7 @@ class _CommentViewState extends State<CommentView> {
                                         return imageNetworkTap(
                                             ontap: () {},
                                             imagePathAPI:
-                                                "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg",
+                                            "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg",
                                             fit: BoxFit.fill,
                                             height: 40,
                                             width: 40);
@@ -107,7 +109,7 @@ class _CommentViewState extends State<CommentView> {
                                       builder: (BuildContext context, snap) {
                                         if (snap.data != null) {
                                           return Text(
-                                              snap.data.snapshot.value['userName']);
+                                              snap.data.snapshot.value['userName'],style: TextStyle(color: Colors.white));
                                         } else {
                                           return Text("user....");
                                         }
@@ -116,7 +118,7 @@ class _CommentViewState extends State<CommentView> {
                                     width: 10,
                                   ),
 
-                                  Text(commentList.commentList[comment].comment,maxLines: 50, style: TextStyle(fontSize: 10.0 ,fontWeight:FontWeight.bold,color: Colors.black) , ),
+                                  Text(commentList.commentList[comment].comment,maxLines: 50, style: TextStyle(fontSize: 10.0 ,fontWeight:FontWeight.bold,color: Colors.grey) , ),
                                 ],
                               ),
                             ),
@@ -161,15 +163,15 @@ class _CommentViewState extends State<CommentView> {
 
                                 commentList
                                     .setCommentLikes(
-                                        postID: commentList
-                                            .commentList[comment].postID,
-                                        uid: uid,
-                                        node: commentList
-                                            .commentList[comment].key,
-                                        like: commentList
-                                            .commentList[comment].likes)
+                                    postID: commentList
+                                        .commentList[comment].postID,
+                                    uid: uid,
+                                    node: commentList
+                                        .commentList[comment].key,
+                                    like: commentList
+                                        .commentList[comment].likes)
                                     .then((value) => commentList.getCommentList(
-                                        postID: widget.postID));
+                                    postID: widget.postID));
                               },
                             )
                           ],
@@ -180,73 +182,75 @@ class _CommentViewState extends State<CommentView> {
                               width: 50,
                             ),
                             DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inSeconds <=
-                                    60
+                                60
                                 ? Text(DateTime.now()
-                                        .difference(DateTime.parse(commentList
-                                            .commentList[comment].time))
-                                        .inSeconds
-                                        .toString() +
-                                    " sec")
+                                .difference(DateTime.parse(commentList
+                                .commentList[comment].time))
+                                .inSeconds
+                                .toString() +
+                                " sec",style: TextStyle(color: Colors.white))
                                 : DateTime.now()
-                                            .difference(DateTime.parse(
-                                                commentList
-                                                    .commentList[comment].time))
-                                            .inMinutes <=
-                                        60
-                                    ? Text(DateTime.now()
-                                            .difference(
-                                                DateTime.parse(commentList.commentList[comment].time))
-                                            .inMinutes
-                                            .toString() +
-                                        " min")
-                                    : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inHours <= 24
-                                        ? Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inHours.toString() + " hrs")
-                                        : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays <= 365
-                                            ? Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays.toString() + " days")
-                                            : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays == 1
-                                                ? Text("today")
-                                                : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays == 2
-                                                    ? Text("Yesterday")
-                                                    : Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays.toString() + "day"),
+                                .difference(DateTime.parse(
+                                commentList
+                                    .commentList[comment].time))
+                                .inMinutes <=
+                                60
+                                ? Text(DateTime.now()
+                                .difference(
+                                DateTime.parse(commentList.commentList[comment].time))
+                                .inMinutes
+                                .toString() +
+                                " min",style: TextStyle(color: Colors.white))
+                                : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inHours <= 24
+                                ? Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inHours.toString() + " hrs",style: TextStyle(color: Colors.white))
+                                : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays <= 365
+                                ? Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays.toString() + " days",style: TextStyle(color: Colors.white))
+                                : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays == 1
+                                ? Text("today",style: TextStyle(color: Colors.white))
+                                : DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays == 2
+                                ? Text("Yesterday",style: TextStyle(color: Colors.white))
+                                : Text(DateTime.now().difference(DateTime.parse(commentList.commentList[comment].time)).inDays.toString() + "day",style: TextStyle(color: Colors.white)),
                             SizedBox(
                               width: 10,
                             ),
-                            Text("Likes"),
+                            Text("Likes",style: TextStyle(color: Colors.white)),
                             SizedBox(
                               width: 5,
                             ),
                             Text(commentList.commentList[comment].likes
-                                .toString())
+                                .toString(),style: TextStyle(color: Colors.white))
                           ],
                         ),
                       );
                     })),
             Container(height: 50
               ,child:  str.length > 1
-                ? ListView(
-                shrinkWrap: true,
-                children: commentList.userTagList.map((s){
+                  ? ListView(
+                  shrinkWrap: true,
+                  children: commentList.userTagList.map((s){
 
-                  if(('@' + s.userName).contains(str))
-                    return
-                      ListTile(
-                          title:Text(s.userName,style: TextStyle(color: Colors.black),),
-                          onTap:(){
-                            String tmp = str.substring(1,str.length);
-                            setState((){
-                              str ='';
-                              textEditingController.text += s.userName.substring(s.userName.indexOf(tmp)+tmp.length,s.userName.length).replaceAll(' ','_');
+                    if(('@' + s.galiUserID).contains(str))
+                      return
+                        ListTile(
+                            title:Text(s.galiUserID,style: TextStyle(color: Colors.white),),
+                            onTap:(){
+                              String tmp = str.substring(1,str.length);
+                              setState((){
+                                str ='';
+                                textEditingController.text += s.galiUserID.substring(s.galiUserID.indexOf(tmp)+tmp.length,s.galiUserID.length);
+                              });
                             });
-                          });
-                  else return SizedBox();
-                }).toList()
-            ):SizedBox(),),
+                    else return SizedBox();
+                  }).toList()
+              ):SizedBox(),),
             Container(
+
               child: Row(
                 children: <Widget>[
                   Flexible(
                     child: Container(
                       child: TextField(
+
                         onChanged: (val) {
                           setState(() {
                             words = val.split(' ');
@@ -262,9 +266,10 @@ class _CommentViewState extends State<CommentView> {
 
                         },
                         style:
-                            TextStyle(color: Color(0xff9E81BE), fontSize: 15.0),
+                        TextStyle(color: Color(0xFF232027), fontSize: 15.0),
                         controller: textEditingController,
                         decoration: InputDecoration.collapsed(
+
                           hintText: '         Type your comment...',
                           hintStyle: TextStyle(color: Colors.grey),
                         ),
@@ -276,7 +281,7 @@ class _CommentViewState extends State<CommentView> {
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 8.0),
                       child: IconButton(
-                        icon: Icon(Icons.send),
+                        icon: Icon(Icons.send,color: Color(0xFF232027),),
                         onPressed: () {
                           commentList.omSendComment(postID:widget.postID,userID: widget.userID,comment: textEditingController.text, );
                           textEditingController.clear();
@@ -293,13 +298,13 @@ class _CommentViewState extends State<CommentView> {
               height: 50.0,
               decoration: BoxDecoration(
                   border:
-                      Border(top: BorderSide(color: Colors.grey, width: 0.5)),
+                  Border(top: BorderSide(color: Colors.grey, width: 0.5)),
                   color: Colors.white),
             )
           ],
         );
       }),
-    );
+    ));
   }
 
 }

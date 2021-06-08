@@ -3,11 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
 import 'package:flutter_native_admob/native_admob_controller.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/galiLibModel.dart';
-import 'package:gaaliya/model/userModel.dart';
-
 import 'package:provider/provider.dart';
-
 import 'galiLibProvider.dart';
 
 class GaliLibView extends StatefulWidget {
@@ -21,7 +19,7 @@ class _GaliLibViewState extends State<GaliLibView> {
   int startIndex = 10;
   ScrollController scrollController = new ScrollController();
   bool isLoading = false;
-  static const _adUnitID = "ca-app-pub-3940256099942544/8135179316";
+
   final _nativeAdController = NativeAdmobController();
   @override
   void initState() {
@@ -45,43 +43,47 @@ class _GaliLibViewState extends State<GaliLibView> {
     return Consumer<GaliLibProvider>(
       builder: (context, search, child) {
         return Scaffold(
-          backgroundColor: Color(0xFF767680),
+          backgroundColor: Color(0xFF232027),
           body: Container(
             height: MediaQuery.of(context).size.height,
             margin: EdgeInsets.only(top: 50, left: 10, right: 10),
             child: Stack(
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                          const Radius.circular(25.0),
+                Theme(
+                  data: ThemeData(primaryColor:Color(0xFF312E34) ),
+                  child: TextField(
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+
+                        border: new OutlineInputBorder(
+
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(45.0),
+                          ),
                         ),
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      hintText: "Search Gali"),
-                  onChanged: (val) {
-                    setState(() {
-                      userList.clear();
-                      searchTerms = val;
-                      search.userTagList.forEach((element) {
-                        if (element.content.contains(searchTerms) ||
-                            element.content
-                                .toLowerCase()
-                                .contains(searchTerms) ||
-                            element.content
-                                .toUpperCase()
-                                .contains(searchTerms)) {
-                          userList.add(element);
-                        }
+                        prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                        hintText: "Search Gaali",
+                        hintStyle: TextStyle(color: Colors.white)),
+                    onChanged: (val) {
+                      setState(() {
+                        userList.clear();
+                        searchTerms = val;
+                        search.userTagList.forEach((element) {
+                          if (element.content.contains(searchTerms) ||
+                              element.content
+                                  .toLowerCase()
+                                  .contains(searchTerms) ||
+                              element.content
+                                  .toUpperCase()
+                                  .contains(searchTerms)) {
+                            userList.add(element);
+                          }
+                        });
                       });
-                    });
-                  },
+                    },
+                  ),
                 ),
+
                 Container(
                     margin: EdgeInsets.only(
                         top: MediaQuery.of(context).size.height / 6),
@@ -99,7 +101,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                                 margin: EdgeInsets.only(bottom: 20.0),
                                 child: NativeAdmob(
                                   // Your ad unit id
-                                  adUnitID: _adUnitID,
+                                  adUnitID: addUnit,
                                   numberAds: 3,
                                   controller: _nativeAdController,
                                   type: NativeAdmobType.full,
@@ -110,36 +112,42 @@ class _GaliLibViewState extends State<GaliLibView> {
                             }
                           },
                           itemBuilder: (context, index) {
-                             if(index == startIndex){
-                                return nextIndex(index, search);
-                             } else{
-                               return Container(
-                                 decoration: BoxDecoration(
-                                     color: Color(0xFF37343B),
-                                     borderRadius:
-                                     BorderRadius.all(Radius.circular(5))),
-                                 margin: EdgeInsets.only(bottom: 5),
-                                 height: MediaQuery.of(context).size.height / 11,
+                            if(index == startIndex){
+                              return nextIndex(index, search);
+                            } else{
+                              return Container(
+                                decoration: BoxDecoration(
+                                    color: Color(0xFF37343B),
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                                margin: EdgeInsets.only(bottom: 5),
+                              padding: EdgeInsets.only(top: 10,bottom: 10),
+                              //  height: MediaQuery.of(context).size.height / 11,
 
-                                 child: Row(
-                                   children: [
-                                     SizedBox(width: 15,),
-                                     Text(userList.length == 0
-                                         ? search.userTagList[index].content
-                                         : userList[index].content,style: TextStyle(color: Colors.white),),
-                                     Spacer(),
-                                     InkWell(onTap: (){
-                                       Clipboard.setData(ClipboardData(text:userList.length == 0
-                                           ? search.userTagList[index].content
-                                           : userList[index].content )).then((value) {
-                                         Fluttertoast.showToast(msg: "gaali copied");
-                                       });
-                                     },child: Image.asset("assets/icons/ico_copy.png")),
-                                     SizedBox(width: 15,)
-                                   ],
-                                 ),
-                               );
-                             }
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 15,),
+                                    Expanded(
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 10,bottom: 10),
+                                        child: Text(userList.length == 0
+                                            ? search.userTagList[index].content
+                                            : userList[index].content,style: TextStyle(color: Colors.white),),
+                                      ),
+                                    ),
+
+                                    InkWell(onTap: (){
+                                      Clipboard.setData(ClipboardData(text:userList.length == 0
+                                          ? search.userTagList[index].content
+                                          : userList[index].content )).then((value) {
+                                        Fluttertoast.showToast(msg: "gaali copied");
+                                      });
+                                    },child: Image.asset("assets/icons/ico_copy.png")),
+                                    SizedBox(width: 15,)
+                                  ],
+                                ),
+                              );
+                            }
 
 
                           }): Center(child: Container(child: CircularProgressIndicator(strokeWidth: 20,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),

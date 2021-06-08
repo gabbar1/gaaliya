@@ -2,10 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +10,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-import 'googleCLientAPI.dart';
-
+String addUnit = "ca-app-pub-3719084056205826/9305008098";//LiveMode
+//String addUnit = "ca-app-pub-3940256099942544/8135179316";//TestMode
 String dummyProfilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6TaCLCqU4K0ieF27ayjl51NmitWaJAh_X0r1rLX4gMvOe0MDaYw&s';
 String appFont = 'HelveticaNeuea';
 List<String> dummyProfilePicList = [
@@ -249,42 +245,7 @@ class ImageFile extends ChangeNotifier{
     notifyListeners();
 
   }
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  _uploadFileToGoogleDrive({File pickedFile}) async {
-    final SharedPreferences prefs = await _prefs;
-    final googleSignIn =
-    signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
 
-
-    final authHeaders = await account.authHeaders;
-    final authenticateClient = GoogleAuthClient(authHeaders);
-    final driveApi = drive.DriveApi(authenticateClient);
-
-
-    File croppedFile = File(pickedFile.path);
-    drive.File fileUpload = drive.File();
-    drive.Permission per = drive.Permission();
-    per.type = "anyone";
-    per.role = "reader";
-    int timeInMillis = 1586348737122;
-    var date = DateTime.fromMillisecondsSinceEpoch(timeInMillis);
-
-    fileUpload.name = date.toString();
-    fileUpload.parents = [prefs.getString("folderID")];
-
-    final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
-    try
-    {
-      driveApi.permissions.create(per, result.id);
-
-      //Creating Permission after folder creation.
-    }
-    catch (Exception)
-    {
-      print("Error");
-    }
-  }
   _imgFromGallery({BuildContext context,int type}) async {
     final pickedFile = await imagePicker.getImage(
         source: ImageSource.gallery,
@@ -306,7 +267,7 @@ class ImageFile extends ChangeNotifier{
 
   }
 
-  Future<void> sendNotification({subject, title, topic}) async {
+  Future<void> sendNotification({subject, title, topic,uid}) async {
 
     String toParams = "/topics/" + topic;
 
@@ -314,13 +275,14 @@ class ImageFile extends ChangeNotifier{
       "notification": {"body": subject, "title": title},
       "priority": "high",
       "data": {
+        "uid":uid,
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
         "id": "1",
         "status": "done",
         "sound": 'default',
-        "screen": "yourTopicName",
+        "screen": "ProfileView",
       },
-      "to": "${toParams}"
+      "to": toParams
     };
 
     final headers = {

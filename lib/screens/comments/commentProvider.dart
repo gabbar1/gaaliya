@@ -1,6 +1,4 @@
 import 'dart:core';
-import 'dart:core';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gaaliya/model/commentModel.dart';
@@ -41,7 +39,7 @@ class CommentProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> UserTag() async{
+  Future<void> userTag() async{
     userTagList.clear();
     transRef.child("user").once().then((DataSnapshot snapshot){
 
@@ -59,6 +57,7 @@ class CommentProvider extends ChangeNotifier {
             'following' :value['following'],
             'followers' :value['followers'],
             'folderID' :value['folderID'],
+            'galiUserID' :value['galiUserID'],
             'key': key
           });
           userTagList.add(userModel);

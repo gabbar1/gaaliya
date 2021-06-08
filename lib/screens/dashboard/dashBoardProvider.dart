@@ -1,5 +1,4 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,7 +9,7 @@ import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
 import 'package:provider/provider.dart';
 
-import 'dashBoard.dart';
+
 
 class DashBoardProvider extends ChangeNotifier {
   List<PostModel> postList = <PostModel>[];
@@ -31,7 +30,7 @@ class DashBoardProvider extends ChangeNotifier {
       if (snapshot != null) {
         Map<dynamic, dynamic> listPost = snapshot.value;
 
-        listPost.forEach((key, value) {
+        listPost.forEach((key, value) async {
 
           PostModel postModel = PostModel.fromJson({
             'gali': value['gali'],
@@ -107,7 +106,7 @@ class DashBoardProvider extends ChangeNotifier {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeNavigator()), (Route<dynamic> route) => false);
         transRef.child('user').child(userID).once().then((DataSnapshot snapshot){
           if(snapshot!=null){
-            Provider.of<ImageFile>(context,listen:false).sendNotification(title: snapshot.value['userName']+" has added new post",topic: userID,subject: "New Post");
+            Provider.of<ImageFile>(context,listen:false).sendNotification(title: snapshot.value['userName']+" has added new post",topic: userID,subject: "New Post",uid: snapshot.value['userID'] );
           }
         });
 
@@ -138,8 +137,8 @@ class DashBoardProvider extends ChangeNotifier {
   Widget likes({String postID, uid}) {
     return Container(
       margin: EdgeInsets.only(left: 40, bottom: 15, top: 15),
-      height: 50,
-      width: 20,
+      height: 30,
+      width: 30,
       child: FutureBuilder<Event>(
         future: FirebaseDatabase.instance
             .reference()
@@ -151,15 +150,15 @@ class DashBoardProvider extends ChangeNotifier {
             .first,
         builder: (BuildContext context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return SvgPicture.asset("assets/icons/beforeLike.svg");
+            return SvgPicture.asset("assets/icons/beforeLike.svg",color: Colors.white,);
           } else {
             if (snap.hasError) {
-              return SvgPicture.asset("assets/icons/beforeLike.svg");
+              return SvgPicture.asset("assets/icons/beforeLike.svg",color: Colors.white,);
             } else {
               if (snap.data.snapshot.value != null) {
-                return SvgPicture.asset("assets/icons/afterLike.svg");
+                return SvgPicture.asset("assets/images/afterLike.svg");
               } else {
-                return SvgPicture.asset("assets/icons/beforeLike.svg");
+                return SvgPicture.asset("assets/images/beforeLike.svg",color: Colors.white,);
               }
             }
           }

@@ -49,6 +49,9 @@ dependencies:
   fluttertoast: ^8.0.6
   flutter_local_notifications: ^5.0.0+1
   firebase_messaging: ^9.1.1
+  share: ^2.0.4
+  flutter_spinkit: ^5.0.0
+  launch_review: ^3.0.1
   flutter:
     sdk: flutter
 

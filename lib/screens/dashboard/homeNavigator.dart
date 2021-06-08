@@ -1,18 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gaaliya/screens/addPost/addPost.dart';
 import 'package:gaaliya/screens/dashboard/dashBoard.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:gaaliya/screens/galiLib/galiLibView.dart';
-import 'package:gaaliya/screens/likes/likesView.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
 import 'package:gaaliya/screens/search/searchView.dart';
-import 'package:flutter/material.dart' as textfont;
 import 'package:provider/provider.dart';
 
 /// This is the stateful widget that the main application instantiates.
@@ -23,18 +21,17 @@ class HomeNavigator extends StatefulWidget {
 
 /// This is the private State class that goes with HomeNavigator.
 class _HomeNavigatorState extends State<HomeNavigator> {
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
 
-  int _CurrentIdex = 0;
+
+  int _currentIdex = 0;
   String uid = "";
   Widget callPage(int currentIdex) {
     switch (currentIdex) {
       case 0:
         return App();
       case 1:
-        return SearchView();
+        return SearchView(status : "1");
       case 2:return AddPostView();
       case 3:return GaliLibView();
       case 4:return ProfileView(currentUser: uid,);
@@ -70,10 +67,11 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xFF232027),
         extendBody: true,
 
       body: Center(
-        child: callPage(_CurrentIdex),
+        child: callPage(_currentIdex),
       ),
       bottomNavigationBar: Container(
 
@@ -90,32 +88,32 @@ class _HomeNavigatorState extends State<HomeNavigator> {
             GestureDetector(
               onTap: (){
                setState(() {
-                 _CurrentIdex =0;
+                 _currentIdex =0;
                });
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/images/home.png"),
+                child: SvgPicture.asset("assets/images/home.svg"),
               ),
             ),
             Spacer(),
            GestureDetector(
              onTap: (){
                setState(() {
-                 _CurrentIdex =1;
+                 _currentIdex =1;
                });
              },
              child:  Container(
-               height: 80,
+               height:30,
                width: MediaQuery.of(context).size.width/6,
-               child: Image.asset("assets/images/search.png"),
+               child: SvgPicture.asset("assets/images/search.svg"),
              ),
            ),
             Spacer(),
             GestureDetector(
               onTap: (){
-                _CurrentIdex =2;
+                _currentIdex =2;
                 Provider.of<GaliImageProvider>(context,listen: false).imageLink =null;
                 Navigator.push(
                   context,
@@ -125,62 +123,40 @@ class _HomeNavigatorState extends State<HomeNavigator> {
                 );
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/images/add.png"),
+                child: SvgPicture.asset("assets/images/add.svg"),
               ),
             ),
             Spacer(),
             GestureDetector(
               onTap: (){
                 setState(() {
-                  _CurrentIdex =3;
+                  _currentIdex =3;
 
                 });
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/icons/ico_gali_lib.png"),
+                child: SvgPicture.asset("assets/images/galiLib.svg",),
               ),
             ),
             Spacer(),
-           GestureDetector(
-             onTap: (){
-               setState(() {
-                 _CurrentIdex =4;
-               });
-             },
-             child: Consumer<DashBoardProvider>(
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  _currentIdex =4;
 
-               builder: (BuildContext con, snapshot,child) {
+                });
+              },
+              child: Container(
+                height: 30,
+                width: MediaQuery.of(context).size.width/6,
+                child: SvgPicture.asset("assets/images/profile.svg",),
+              ),
+            ),
 
-
-                 if(snapshot.userDetails.isEmpty){
-                  return Container(
-                     height: 80,
-                     width: MediaQuery.of(context).size.width/6,
-                     child: Image.asset("assets/images/profile.png"),
-                   );
-                 } else{
-                   return Container(
-                     height: 25,
-                     width: MediaQuery.of(context).size.width/6,
-                     child: CircleAvatar(
-                         radius: 15,
-                         backgroundImage: NetworkImage(snapshot.userDetails.where((element) => element.userID == uid).first.profile==null ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg":snapshot.userDetails.where((element) => element.userID == uid).first.profile)
-                     ),
-                   );
-                  /* return Container(
-                     height: 30,
-                     width: MediaQuery.of(context).size.width/6,
-                     child: ClipRRect(borderRadius: BorderRadius.circular(8.0),child: CachedNetworkImage(imageUrl: snapshot.userDetails.where((element) => element.userID == uid).first.profile,)),
-                   );*/
-                 }
-
-               }
-             ),
-           ),
 
 
           ],

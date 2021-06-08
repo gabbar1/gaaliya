@@ -1,7 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gaaliya/model/galiLibModel.dart';
-import 'package:gaaliya/model/userModel.dart';
+
 
 class GaliLibProvider extends ChangeNotifier{
   FirebaseDatabase ref = FirebaseDatabase();

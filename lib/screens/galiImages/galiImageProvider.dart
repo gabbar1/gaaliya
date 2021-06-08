@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ import 'package:gaaliya/model/galiImageModel.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
 import 'package:image/image.dart';
 import 'dart:ui' as ui;
-
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +104,6 @@ class GaliImageProvider extends ChangeNotifier{
 
   Future<void> uploadFileToGoogleDrive({File image,String filename,content,BuildContext context, String uid}) async {
     onLoading(context: context, strMessage: "Loading");
-    final SharedPreferences prefs = await _prefs;
     final googleSignIn =
     signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
@@ -145,7 +142,6 @@ class GaliImageProvider extends ChangeNotifier{
 
   Future<void> uploadProfileToGoogleDrive({String galiUserID,name,email,File image,String filename,content,BuildContext context, String uid,String folder}) async {
     onLoading(context: context, strMessage: "Loading");
-    final SharedPreferences prefs = await _prefs;
     final googleSignIn =
     signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final signIn.GoogleSignInAccount account = await googleSignIn.signIn();

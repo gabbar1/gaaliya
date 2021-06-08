@@ -26,44 +26,44 @@ class _FollowViewState extends State<FollowView> {
   Widget build(BuildContext context) {
     return Consumer<FollowProvider>(
       builder: (context, search, child) {
-        return Scaffold(
-          backgroundColor: Color(0xFF767680),
+        return SafeArea(child: Scaffold(
+          backgroundColor: Color(0xFF232027),
           body: Container(
             height: MediaQuery.of(context).size.height,
             margin: EdgeInsets.only(top: 50, left: 10, right: 10),
             child: Stack(
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                          const Radius.circular(25.0),
-                        ),
+              Theme(data: ThemeData(primaryColor:Color(0xFF312E34) ), child:   TextField(
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+
+                    border: new OutlineInputBorder(
+
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(45.0),
                       ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      hintText: "Search Gali"),
-                  onChanged: (val) {
-                    setState(() {
-                      userList.clear();
-                      searchTerms = val;
-                      search.followList.forEach((element) {
-                        if (element.userName.contains(searchTerms) ||
-                            element.userName
-                                .toLowerCase()
-                                .contains(searchTerms) ||
-                            element.userName
-                                .toUpperCase()
-                                .contains(searchTerms)) {
-                          userList.add(element);
-                        }
-                      });
+                    ),
+                    prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                    hintText: "Search User",
+                    hintStyle: TextStyle(color: Colors.white)),
+                onChanged: (val) {
+                  setState(() {
+                    userList.clear();
+                    searchTerms = val;
+                    search.followList.forEach((element) {
+                      if (element.userName.contains(searchTerms) ||
+                          element.userName
+                              .toLowerCase()
+                              .contains(searchTerms) ||
+                          element.userName
+                              .toUpperCase()
+                              .contains(searchTerms)) {
+                        userList.add(element);
+                      }
                     });
-                  },
-                ),
+                  });
+                },
+              ),),
                 Container(
                     margin: EdgeInsets.only(
                         top: MediaQuery.of(context).size.height / 10),
@@ -88,7 +88,7 @@ class _FollowViewState extends State<FollowView> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                    color: Color(0xFF37343B),
+                                    color: Color(0xFF312E34),
                                     borderRadius:
                                     BorderRadius.all(Radius.circular(5))),
                                 margin: EdgeInsets.only(bottom: 5),
@@ -118,7 +118,7 @@ class _FollowViewState extends State<FollowView> {
               ],
             ),
           ),
-        );
+        ));
       },
     );
   }

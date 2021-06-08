@@ -22,6 +22,7 @@ class _ChooserUserIDState extends State<ChooserUserID> {
             height: 50,
             width: MediaQuery.of(context).size.width,
             child: TextField(
+
               style: material.TextStyle(color: material.Color(0xFFD8D6D9)),
               controller: nameController,
               decoration: new InputDecoration(

@@ -1,10 +1,7 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import '../main.dart';
 
 class AuthService extends ChangeNotifier {

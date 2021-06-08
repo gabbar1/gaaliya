@@ -5,13 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as container;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
 import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:gaaliya/screens/galiImages/galiImagesView.dart';
 import 'package:gaaliya/screens/galiLib/galiLibView.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:o_color_picker/o_color_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -25,7 +23,7 @@ class _AddPostViewState extends State<AddPostView> {
   TextEditingController controller = TextEditingController();
   GlobalKey<FormState> addPostFormKey = new GlobalKey<FormState>();
   DatabaseReference transRef = FirebaseDatabase.instance.reference();
-  final ImagePicker _picker = ImagePicker();
+
 
   String uid;
   bool text = true;
@@ -58,10 +56,10 @@ class _AddPostViewState extends State<AddPostView> {
   GlobalKey imagekey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    var postP = Provider.of<DashBoardProvider>(context, listen: false);
+
     return Consumer<GaliImageProvider>(builder: (context, imageLink, child) {
-      return WillPopScope(child: Scaffold(
-        // backgroundColor: back,
+      return SafeArea(child: WillPopScope(child: Scaffold(
+          backgroundColor: Color(0xFF232027),
           body: InkWell(
             onTap: () {
               FocusScope.of(context).unfocus();
@@ -82,7 +80,7 @@ class _AddPostViewState extends State<AddPostView> {
                       child: Screenshot(
                         key: imagekey,
                         controller: imageController,
-                        child: container.Container(
+                        child: Stack(children: [container.Container(
                             color: imageLink.imageLink == null ? back : null,
                             height: MediaQuery.of(context).size.height,
                             decoration: imageLink.imageLink != null
@@ -101,89 +99,91 @@ class _AddPostViewState extends State<AddPostView> {
                               ),
                             )
                                 : null),
-                      ),
-                    ),
-                    Positioned(
-                      left: offset.dx,
-                      top: offset.dy,
-                      child: GestureDetector(
-                        onPanUpdate: (details) {
-                          setState(() {
-                            offset = Offset(offset.dx + details.delta.dx,
-                                offset.dy + details.delta.dy);
-                          });
-                        },
-                        child: container.Container(
-                          margin: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 3,
-                              left: 50,
-                              right: 50),
-                          // height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
-                          child: Scrollbar(
-                            child: TextFormField(
-                              //  focusNode: _focusNode,
-                              maxLines: null,
-                              onChanged: (val) {
+
+                          Positioned(
+                            left: offset.dx,
+                            top: offset.dy,
+                            child: GestureDetector(
+                              onPanUpdate: (details) {
                                 setState(() {
-                                  isVisible = false;
-                                  isTextColorChange = true;
+                                  offset = Offset(offset.dx + details.delta.dx,
+                                      offset.dy + details.delta.dy);
                                 });
                               },
-                              controller: controller,
-                              style: font == 1
-                                  ? GoogleFonts.rokkitt(
-                                  color: selectedColor, fontSize: fontSize)
-                                  : font == 2
-                                  ? GoogleFonts.specialElite(
-                                color: selectedColor,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: fontSize)
-                                  : font == 3
-                                  ? GoogleFonts.sofia(
-                                color: selectedColor,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: fontSize)
-                                  : font == 4
-                                  ? GoogleFonts.sofadiOne(
-                                color: selectedColor,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: fontSize)
-                                  : font == 5
-                                  ? GoogleFonts.signika(
-                                color: selectedColor,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: fontSize)
-                                  : font == 6
-                                  ? GoogleFonts.sevillana(
-                                color: selectedColor,
-                                  fontStyle:
-                                  FontStyle.italic,
-                                  fontSize: fontSize)
-                                  : GoogleFonts.rye(
-                                color: selectedColor,
-                                  fontStyle:
-                                  FontStyle.italic,
-                                  fontSize: fontSize),
-                              decoration: new InputDecoration(
-                                  contentPadding: EdgeInsets.all(10),
-                                  border: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  errorBorder: InputBorder.none,
-                                  disabledBorder: InputBorder.none,
-                                  hintText: hint),
-                              validator: (value) {
-                                if (value.toString().isEmpty) {
-                                  return "tr('field_required')";
-                                  //"Please enter valid floor number";
-                                } else {
-                                  return null;
-                                }
-                              },
+                              child: container.Container(
+                                margin: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height / 3,
+                                    left: 50,
+                                    right: 50),
+                                // height: MediaQuery.of(context).size.height,
+                                width: MediaQuery.of(context).size.width,
+                                child: Scrollbar(
+                                  child: TextFormField(
+                                    //  focusNode: _focusNode,
+                                    maxLines: null,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        isVisible = false;
+                                        isTextColorChange = true;
+                                      });
+                                    },
+                                    controller: controller,
+                                    style: font == 1
+                                        ? GoogleFonts.rokkitt(
+                                        color: selectedColor, fontSize: fontSize)
+                                        : font == 2
+                                        ? GoogleFonts.specialElite(
+                                        color: selectedColor,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: fontSize)
+                                        : font == 3
+                                        ? GoogleFonts.sofia(
+                                        color: selectedColor,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: fontSize)
+                                        : font == 4
+                                        ? GoogleFonts.sofadiOne(
+                                        color: selectedColor,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: fontSize)
+                                        : font == 5
+                                        ? GoogleFonts.signika(
+                                        color: selectedColor,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: fontSize)
+                                        : font == 6
+                                        ? GoogleFonts.sevillana(
+                                        color: selectedColor,
+                                        fontStyle:
+                                        FontStyle.italic,
+                                        fontSize: fontSize)
+                                        : GoogleFonts.rye(
+                                        color: selectedColor,
+                                        fontStyle:
+                                        FontStyle.italic,
+                                        fontSize: fontSize),
+                                    decoration: new InputDecoration(
+                                        contentPadding: EdgeInsets.all(10),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        hintText: hint,
+                                         hintStyle: TextStyle(color: Colors.white)),
+                                    validator: (value) {
+                                      if (value.toString().isEmpty) {
+                                        return "tr('field_required')";
+                                        //"Please enter valid floor number";
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          ),],),
                       ),
                     ),
                     isVisible
@@ -219,23 +219,10 @@ class _AddPostViewState extends State<AddPostView> {
                                     left: 130,
                                     right: 130,
                                     top: MediaQuery.of(context).size.height -
-                                        100),
+                                        150),
                                 height: 55,
                                 decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topRight,
-                                      end: Alignment.bottomLeft,
-                                      stops: [
-                                        0.1,
-                                        1.0,
-                                        1.0,
-                                      ],
-                                      colors: [
-                                        Color(0xFF3897F0),
-                                        Color(0xFFFC00FF),
-                                        Color(0xB2FEFA),
-                                      ],
-                                    ),
+                                    color: Color(0xFF5458F7),
                                     borderRadius:
                                     BorderRadius.all(Radius.circular(25))),
                                 child: Container(
@@ -249,107 +236,98 @@ class _AddPostViewState extends State<AddPostView> {
                         ))
                         : Container(),
                     isVisible
-                        ? container.Container(
-                        margin: EdgeInsets.only(
-                            bottom: 25,
-                            left: MediaQuery.of(context).size.width / 2 + 150,
-                            right: 20,
-                            top: 45),
-                        height: MediaQuery.of(context).size.height / 3,
-                        child: container.Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 20,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  text = true;
-                                  textHide = true;
-                                  video = false;
-                                  image = false;
-                                  gif = false;
-                                });
-                              },
-                              child: textHide == false
-                                  ? SvgPicture.asset("assets/icons/text.svg")
-                                  : SvgPicture.asset(
-                                "assets/icons/text.svg",
-                                color: Colors.transparent,
+                        ? Positioned(
+                      right: 20,
+                      child: container.Container(
+                          margin: EdgeInsets.only(
+                              bottom: 25,
+
+
+                              top: 45),
+                          height: MediaQuery.of(context).size.height / 3,
+                          child: container.Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height / 20,
                               ),
-                            ),
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  text = false;
-                                  video = false;
-                                  image = true;
-                                  imageHide = true;
-                                  gif = false;
-                                });
-                              },
-                              child: imageHide == false
-                                  ? SvgPicture.asset("assets/icons/color.svg")
-                                  : SvgPicture.asset(
-                                "assets/icons/color.svg",
-                                color: Colors.transparent,
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    text = true;
+                                    textHide = true;
+                                    video = false;
+                                    image = false;
+                                    gif = false;
+                                  });
+                                },
+                                child: textHide == false
+                                    ? SvgPicture.asset("assets/icons/text.svg")
+                                    : SvgPicture.asset(
+                                  "assets/icons/text.svg",
+                                  color: Colors.transparent,
+                                ),
                               ),
-                            ),
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => GaliImagesView()),
-                                );
-                                setState(() {
-                                  text = false;
-                                  video = true;
-                                  image = false;
-                                  gif = false;
-                                });
-                              },
-                              child: Image.asset("assets/icons/images.png"),
-                            ),
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  text = false;
-                                  video = false;
-                                  image = false;
-                                  gif = true;
-                                });
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => GaliLibView()),
-                                );
-                              },
-                              child:
-                              SvgPicture.asset("assets/icons/gaaliya.svg"),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.width / 20,
-                            )
-                          ],
-                        ))
+                              Spacer(),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    text = false;
+                                    video = false;
+                                    image = true;
+                                    imageHide = true;
+                                    gif = false;
+                                  });
+                                },
+                                child: imageHide == false
+                                    ? SvgPicture.asset("assets/icons/color.svg")
+                                    : SvgPicture.asset(
+                                  "assets/icons/color.svg",
+                                  color: Colors.transparent,
+                                ),
+                              ),
+                              Spacer(),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GaliImagesView()),
+                                  );
+                                  setState(() {
+                                    text = false;
+                                    video = true;
+                                    image = false;
+                                    gif = false;
+                                  });
+                                },
+                                child: Image.asset("assets/icons/images.png"),
+                              ),
+                              Spacer(),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    text = false;
+                                    video = false;
+                                    image = false;
+                                    gif = true;
+                                  });
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GaliLibView()),
+                                  );
+                                },
+                                child:
+                                SvgPicture.asset("assets/icons/gaaliya.svg"),
+                              ),
+                              SizedBox(
+                                height: MediaQuery.of(context).size.width / 20,
+                              )
+                            ],
+                          )),
+                    )
                         : Container(),
-/*isVisible ?container.Container(margin: EdgeInsets.only(top: MediaQuery.of(context).size.height/10,left: MediaQuery.of(context).size.width/15),child:
-InkWell(
-  onTap: () {
-    setState(() {
-        text = false;
-        video = false;
-        image = false;
-        gif = true;
-    });
-  },
-  child: Image.asset("assets/icons/emogi.png"),
-),):Container(),*/
 
                     isVisible
                         ? Positioned(
@@ -487,7 +465,7 @@ InkWell(
                     isVisible
                         ? Positioned(
                         top: 100,
-                        right: MediaQuery.of(context).size.width / 1.5,
+                        right: MediaQuery.of(context).size.width / 1.4,
                         child: Transform(
                           alignment: FractionalOffset.center,
                           // Rotate sliders by 90 degrees
@@ -510,7 +488,10 @@ InkWell(
                         : Container(),
                     isVisible
                         ? Positioned(
-                        width: MediaQuery.of(context).size.width,
+                        left: MediaQuery.of(context).size.width/2.6,
+                        top: 20,
+
+                        width: MediaQuery.of(context).size.width/4,
                         child: GestureDetector(
                           onTap: () {
                             showDialog(context: context, builder: (BuildContext context){
@@ -530,36 +511,20 @@ InkWell(
                           child: Center(
                             child: container.Container(
                                 alignment: Alignment.center,
-                                margin: EdgeInsets.only(
-                                    top: 50,
-                                    left: 180,
-                                    right: 180,
-                                    bottom: MediaQuery.of(context).size.height -
-                                        100),
+
                                 height: 40,
                                 decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topRight,
-                                      end: Alignment.bottomLeft,
-                                      stops: [
-                                        0.1,
-                                        1.0,
-                                        1.0,
-                                      ],
-                                      colors: [
-                                        Color(0xFF3897F0),
-                                        Color(0xFFFC00FF),
-                                        Color(0xB2FEFA),
-                                      ],
-                                    ),
+                                    color: Color(0xFF5458F7),
                                     borderRadius:
                                     BorderRadius.all(Radius.circular(25))),
-                                child: Container(
-                                  child: Center(
-                                      child: Text(
-                                        "Text",
-                                        style: TextStyle(color: Colors.white),
-                                      )),
+                                child: Center(
+                                  child: Container(
+                                    child: Center(
+                                        child: Text(
+                                          "Text",
+                                          style: TextStyle(color: Colors.white),
+                                        )),
+                                  ),
                                 )),
                           ),
                         ))
@@ -586,76 +551,107 @@ InkWell(
                                 width: MediaQuery.of(context).size.width /
                                     10,
                               ),
+
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.green;
+                                    back = Color(0xFF32FF9D);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_one.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF32FF9D)),
+                                ),
                               ),
                               Spacer(),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.orange;
+                                    back = Color(0xFFFF776B);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_two.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFFF776B)),
+                                ),
                               ),
                               Spacer(),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.lightBlueAccent;
+                                    back = Color(0xFF45C5FF);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_three.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFF45C5FF)),
+                                ),
                               ),
                               Spacer(),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.lightGreen;
+                                    back = Color(0xFFB0D16F);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_four.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFB0D16F)),
+                                ),
                               ),
                               Spacer(),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.yellow;
+                                    back = Color(0xFFFFBE63);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_five.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFFFBE63)),
+                                ),
                               ),
                               Spacer(),
                               InkWell(
                                 onTap: () {
                                   setState(() {
-                                    back = Colors.pinkAccent;
+                                    back = Color(0xFFF71E78);
                                     imageLink.imageLink = null;
                                   });
                                 },
-                                child: Center(
-                                    child: Image.asset(
-                                        "assets/icons/color_six.png")),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFF71E78)),
+                                ),
                               ),
                               SizedBox(
                                 width: MediaQuery.of(context).size.width /
@@ -679,7 +675,7 @@ InkWell(
                 builder: (context) =>
                     HomeNavigator()),
                 (route) => false);
-      } );
+      } ));
     });
   }
 }
@@ -705,7 +701,8 @@ class _EditImageState extends State<EditImage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
+      backgroundColor: Color(0xFF232027),
       body: Consumer<GaliImageProvider>(
         builder: (context, imageLink, child) {
           return Stack(
@@ -714,30 +711,30 @@ class _EditImageState extends State<EditImage> {
                   height: MediaQuery.of(context).size.height,
                   decoration: imageLink.pngBytes == null
                       ? imageLink.imageLink != null
-                          ? BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(imageLink.imageLink),
-                                fit: BoxFit.fitWidth,
-                              ),
-                            )
-                          : null
+                      ? BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(imageLink.imageLink),
+                      fit: BoxFit.fitWidth,
+                    ),
+                  )
+                      : null
                       : BoxDecoration(
-                          image: DecorationImage(
-                            image: FileImage(imageLink.capturedNewFile),
-                            fit: BoxFit.fitWidth,
-                          ),
-                        )),
+                    image: DecorationImage(
+                      image: FileImage(imageLink.capturedNewFile),
+                      fit: BoxFit.fitWidth,
+                    ),
+                  )),
               Positioned(
                   width: MediaQuery.of(context).size.width,
                   child: GestureDetector(
                     onTap: () {
                       Provider.of<GaliImageProvider>(context, listen: false)
                           .uploadFileToGoogleDrive(
-                              filename: imageLink.filename,
-                              image: imageLink.capturedNewFile,
-                              context: context,
-                              uid: uid,
-                              content: widget.text);
+                          filename: imageLink.filename,
+                          image: imageLink.capturedNewFile,
+                          context: context,
+                          uid: uid,
+                          content: widget.text);
                     },
                     child: Center(
                       child: container.Container(
@@ -749,28 +746,15 @@ class _EditImageState extends State<EditImage> {
                               top: MediaQuery.of(context).size.height - 100),
                           height: 55,
                           decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topRight,
-                                end: Alignment.bottomLeft,
-                                stops: [
-                                  0.1,
-                                  1.0,
-                                  1.0,
-                                ],
-                                colors: [
-                                  Color(0xFF3897F0),
-                                  Color(0xFFFC00FF),
-                                  Color(0xB2FEFA),
-                                ],
-                              ),
+                              color: Color(0xFF5458F7),
                               borderRadius:
                               BorderRadius.all(Radius.circular(25))),
                           child: Container(
                             child: Center(
                                 child: Text(
-                              "Post",
-                              style: TextStyle(color: Colors.white),
-                            )),
+                                  "Post",
+                                  style: TextStyle(color: Colors.white),
+                                )),
                           )),
                     ),
                   ))
@@ -778,6 +762,6 @@ class _EditImageState extends State<EditImage> {
           );
         },
       ),
-    );
+    ));
   }
 }
