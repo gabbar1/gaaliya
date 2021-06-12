@@ -725,12 +725,13 @@ class _EditImageState extends State<EditImage> {
                     ),
                   )),
               Positioned(
+                bottom: 20,
                   width: MediaQuery.of(context).size.width,
                   child: GestureDetector(
                     onTap: () {
                       Provider.of<GaliImageProvider>(context, listen: false)
                           .uploadFileToGoogleDrive(
-                          filename: imageLink.filename,
+                          filename: uid,
                           image: imageLink.capturedNewFile,
                           context: context,
                           uid: uid,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
 import 'package:flutter_native_admob/native_admob_controller.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/galiLibModel.dart';
@@ -61,7 +62,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                             const Radius.circular(45.0),
                           ),
                         ),
-                        prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                        prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: SvgPicture.asset("assets/images/search.svg"),),
                         hintText: "Search Gaali",
                         hintStyle: TextStyle(color: Colors.white)),
                     onChanged: (val) {

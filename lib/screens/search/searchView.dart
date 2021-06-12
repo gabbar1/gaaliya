@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
 import 'package:flutter_native_admob/native_admob_controller.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
@@ -43,10 +45,15 @@ class _SearchViewState extends State<SearchView> with SingleTickerProviderStateM
   var _tookA = false, _tookB = false, _fadeContainer = true;
   TabController tabController;
   int selectedIndex = 0;
+  String uid;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    this.uid = '';
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User user = auth.currentUser;
+    this.uid = user.uid;
     tabController = TabController(
         length: list.length, vsync:this, initialIndex: selectedIndex);
     _controller.addListener(listener);
@@ -95,7 +102,7 @@ class _SearchViewState extends State<SearchView> with SingleTickerProviderStateM
                               const Radius.circular(45.0),
                             ),
                           ),
-                          prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                          prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: SvgPicture.asset("assets/images/search.svg"),),
                           hintText: "Search Gaali",
                           hintStyle: TextStyle(color: Colors.white)),
                       onChanged: (val) {
@@ -223,7 +230,7 @@ class _SearchViewState extends State<SearchView> with SingleTickerProviderStateM
                         const Radius.circular(45.0),
                       ),
                     ),
-                    prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                    prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: SvgPicture.asset("assets/images/search.svg"),),
                     hintText: "Search User",
                     hintStyle: TextStyle(color: Colors.white)),
                 onChanged: (val) {
@@ -252,12 +259,13 @@ class _SearchViewState extends State<SearchView> with SingleTickerProviderStateM
                           if(index == startIndex){
                             return   nextIndex(index,search);
                           } else{
+                            if(search.userTagList[index].userID !=uid)
                             return InkWell(
                               onTap: (){
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ProfileView(currentUser: userList.length == 0
+                                      builder: (context) => ProfileView(notificationID: search.userTagList[index].notificationID,currentUser: userList.length == 0
                                           ? search.userTagList[index].userID
                                           : userList[index].userID,currentUsername: userList.length == 0 ? search.userTagList[index].userName : userList[index].userName,)),
                                 );
@@ -290,6 +298,8 @@ class _SearchViewState extends State<SearchView> with SingleTickerProviderStateM
                                 ),
                               ),
                             );
+                            else
+                              return Container();
                           }
 
                         })

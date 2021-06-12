@@ -65,12 +65,14 @@ class ProfileProvider extends ChangeNotifier{
     });
  }
 
-  Future<void> follow({String uid,String followerID,followerName,email}) async{
+  Future<void> follow({String uid,String followerID,followerName,email,notificationID}) async{
+
     await FirebaseMessaging.instance.subscribeToTopic(followerID);
+
     transRef.child('subscription').child(uid).child(followerID).update({
       'subriberID':followerID
     });
-    Provider.of<ImageFile>(AppUtils().routeObserver.navigator.context,listen:false).sendNotification(subject: "Congratulations you got new follower",topic: email.replaceAll("@", "").replaceAll(".", ""),title: "New follower");
+    Provider.of<ImageFile>(AppUtils().routeObserver.navigator.context,listen:false).sendNotification(subject: "Congratulations you got new follower",topic: notificationID,title: "New follower");
 
     transRef.child("followlist").child(uid).push().set({
       'userID':followerID,

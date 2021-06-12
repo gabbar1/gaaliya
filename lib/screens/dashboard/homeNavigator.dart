@@ -34,7 +34,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
         return SearchView(status : "1");
       case 2:return AddPostView();
       case 3:return GaliLibView();
-      case 4:return ProfileView(currentUser: uid,);
+      case 4:return ProfileView(currentUser: uid);
         break;
       default:
         return App();
@@ -47,6 +47,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
         Map<dynamic, dynamic> subscribeList = snapshot.value;
         subscribeList.forEach((key, value) {
           FirebaseMessaging.instance.subscribeToTopic(value['subriberID']);
+
         });
       }
     });

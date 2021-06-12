@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/follow/followProvider.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
@@ -43,7 +44,7 @@ class _FollowViewState extends State<FollowView> {
                         const Radius.circular(45.0),
                       ),
                     ),
-                    prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                    prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: SvgPicture.asset("assets/images/search.svg"),),
                     hintText: "Search User",
                     hintStyle: TextStyle(color: Colors.white)),
                 onChanged: (val) {
@@ -81,7 +82,9 @@ class _FollowViewState extends State<FollowView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ProfileView(currentUser: userList.length == 0
+                                      builder: (context) => ProfileView(notificationID: userList.length == 0
+                                          ? search.followList[index].notificationID
+                                          : userList[index].notificationID,currentUser: userList.length == 0
                                           ? search.followList[index].userID
                                           : userList[index].userID,currentUsername: userList.length == 0 ? search.followList[index].userName : userList[index].userName,)),
                                 );

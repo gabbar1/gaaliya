@@ -8,14 +8,15 @@ import 'package:flutter/services.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/galiImageModel.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+import 'package:gaaliya/service/minio.dart';
 import 'package:image/image.dart';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:gaaliya/helper/googleCLientAPI.dart';
+import 'package:http/http.dart' as http;
 
 
 class GaliImageProvider extends ChangeNotifier{
@@ -104,80 +105,56 @@ class GaliImageProvider extends ChangeNotifier{
 
   Future<void> uploadFileToGoogleDrive({File image,String filename,content,BuildContext context, String uid}) async {
     onLoading(context: context, strMessage: "Loading");
-    final googleSignIn =
-    signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-
-
-    final authHeaders = await account.authHeaders;
-    final authenticateClient = GoogleAuthClient(authHeaders);
-    final driveApi = drive.DriveApi(authenticateClient);
-
 
     File croppedFile = File(image.path);
-    drive.File fileUpload = drive.File();
-    drive.Permission per = drive.Permission();
- // "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8"
-    per.type = "anyone";
-    per.role = "reader";
-    fileUpload.name = filename;
-  /*  fileUpload.parents = [prefs.getString("folderID")];
-    */
-    final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
-    try
-    {
-      driveApi.permissions.create(per, result.id);
-      var googleURL = "https://www.googleapis.com/drive/v3/files/";
-      var exportURL = "?alt=media&key=";
-      var api = "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8";
-      var finalURL = googleURL+result.id+exportURL+api;
-      Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:finalURL );
-      //Creating Permission after folder creation.
+    var date = DateTime.fromMillisecondsSinceEpoch(1586348737122 * 1000);
+    var newFileName = filename+date.toString()+"jpg";
+    try {
+      const region = "us-west-1";
+      final minio = Minio(
+        endPoint: 's3.$region.wasabisys.com',
+        accessKey: 'VHNW6XFKQEN0737H95SA',
+        secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+      );
+      Stream<List<int>> stream = new File(croppedFile.path).openRead();
+      await minio.putObject('gaaliya',filename+croppedFile.path.split("/").last , stream,100);
+      final url = await minio.presignedGetObject('gaaliya', filename+croppedFile.path.split("/").last,);
+      Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last );
+      print(url);
+
     }
-    catch (Exception)
-    {
-      print("Error");
+
+    catch(Exception){
+      print(Exception);
     }
+
   }
 
   Future<void> uploadProfileToGoogleDrive({String galiUserID,name,email,File image,String filename,content,BuildContext context, String uid,String folder}) async {
     onLoading(context: context, strMessage: "Loading");
-    final googleSignIn =
-    signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-
-
-    final authHeaders = await account.authHeaders;
-    final authenticateClient = GoogleAuthClient(authHeaders);
-    final driveApi = drive.DriveApi(authenticateClient);
 
     File croppedFile = File(image.path);
-    drive.File fileUpload = drive.File();
-    drive.Permission per = drive.Permission();
-    per.type = "anyone";
-    per.role = "reader";
-    fileUpload.name = filename;
 
-    final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
+    try {
+      const region = "us-west-1";
+      final minio = Minio(
+        endPoint: 's3.$region.wasabisys.com',
+        accessKey: 'VHNW6XFKQEN0737H95SA',
+        secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+      );
+      Stream<List<int>> stream = new File(croppedFile.path).openRead();
+      await minio.putObject('gaaliya',filename+croppedFile.path.split("/").last , stream,100);
+      final url = await minio.presignedGetObject('gaaliya', filename+croppedFile.path.split("/").last,);
+      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last  );
+      //Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last );
+      print(url);
 
-    try
-    {
-      driveApi.permissions.create(per, result.id);
-
-      var googleURL = "https://www.googleapis.com/drive/v3/files/";
-      var exportURL = "?alt=media&key=";
-      var api = "AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8";
-      var finalURL = googleURL+result.id+exportURL+api;
-
-      //"https://www.googleapis.com/drive/v3/files/1IvtWn9HktActV-IiV2gUMTiNH0mM6RxF?alt=media&key=AIzaSyCkG0nakHWX67p4iBmVKTRtemkh41btSB8"
-
-      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:finalURL  );
-      //Creating Permission after folder creation.
     }
-    catch (Exception)
-    {
-      print("Error");
+
+    catch(Exception){
+      print(Exception);
     }
+
   }
   bool userExist = false;
    checkUserID({BuildContext context,String galiUserID}) async{

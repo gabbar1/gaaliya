@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +50,7 @@ class _GaliImagesViewState extends State<GaliImagesView> {
                           const Radius.circular(45.0),
                         ),
                       ),
-                      prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: Image.asset("assets/images/search.png"),),
+                      prefixIcon: Padding(padding: EdgeInsets.only(left: 10,right: 0),child: SvgPicture.asset("assets/images/search.svg"),),
                       hintText: "Search Gaali",
                       hintStyle: TextStyle(color: Colors.white)),
                   onChanged: (val) {

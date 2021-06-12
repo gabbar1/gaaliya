@@ -7,6 +7,7 @@ import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/postModel.dart';
 import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
+import 'package:gaaliya/service/minio.dart';
 import 'package:provider/provider.dart';
 
 
@@ -39,7 +40,7 @@ class DashBoardProvider extends ChangeNotifier {
             'userID': value['userID'],
             'likes': value['likes'],
             'comments': value['comments'],
-            'imageUrl': value['imageUrl'],
+            'imageUrl':value['imageUrl'] ,
             'key': key
           });
         //  postList.add(postModel);
@@ -92,7 +93,7 @@ class DashBoardProvider extends ChangeNotifier {
     transRef.child("content").once().then((value) {
       postID = "GL_" +
           userID +
-          (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+          (value.value!=null ?value.value.length + 1 : 1).toString().padLeft(10, '0');
       Navigator.pop(context);
       transRef.child("content").push().set({
         'gali': postContent,

@@ -14,11 +14,9 @@ import 'package:gaaliya/screens/profile/profileView.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:flutter/material.dart' as textFont;
 import 'helper/appUtils.dart';
-import 'helper/googleCLientAPI.dart';
 import 'helper/helper.dart';
 import 'service/authService.dart';
 
@@ -230,7 +228,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   Future<UserCredential> signInWithGoogle() async {
     FirebaseDatabase.instance.reference().child("user").once().then((value) {
       postID =
-          "GL_" + (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+          "GL_" + (value.value!=null ?value.value.length + 1 : 1).toString().padLeft(10, '0');
     });
     // Trigger the authentication flow
     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
@@ -250,17 +248,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     return await FirebaseAuth.instance
         .signInWithCredential(credential)
         .then((value) async {
-      FirebaseMessaging.instance.subscribeToTopic(
-          value.user.email.replaceAll("@", "").replaceAll(".", ""));
+
       if (value.user != null) {
-        final googleSignIn =
-            signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-        final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-        final authHeaders = await account.authHeaders;
-        final authenticateClient = GoogleAuthClient(authHeaders);
-        final driveApi = drive.DriveApi(authenticateClient);
-        final SharedPreferences prefs = await _prefs;
-        print("User account $account");
 
         FirebaseDatabase.instance
             .reference()
@@ -269,11 +258,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
             .once()
             .then((DataSnapshot snapshot) async {
           if (snapshot.value == null) {
-            drive.File folderUpload = drive.File();
-            folderUpload.mimeType = "application/vnd.google-apps.folder";
-            folderUpload.name = "gaaliya";
-            final folder = await driveApi.files.create(folderUpload);
-            prefs.setString('folderID', folder.id);
+
             FirebaseDatabase.instance
                 .reference()
                 .child("user")
@@ -284,13 +269,16 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
               'userPhone': value.user.phoneNumber,
               'userName': value.user.displayName,
               'profile': dummyProfilePicList[randomNumber],
-              'folderID': folder.id,
               "followers": 0,
               "following": 0,
-              "galiUserID": postID
+              "galiUserID": postID,
+              "notificationID":value.user.uid+postID.toString().replaceAll("_", "")
+            }).whenComplete(() async{
+              //value.user.uid+postID.toString().replaceAll("_", "")
+              await FirebaseMessaging.instance.subscribeToTopic(value.user.uid+postID.toString().replaceAll("_", ""));
             });
-          } else {
-            prefs.setString('folderID', snapshot.value["folderID"]);
+          } else{
+            await FirebaseMessaging.instance.subscribeToTopic(snapshot.value["notificationID"].toString().replaceAll("_", ""));
           }
         });
       }

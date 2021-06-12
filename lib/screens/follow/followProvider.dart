@@ -36,6 +36,7 @@ class FollowProvider extends ChangeNotifier{
             'following' :value['following'],
             'followers' :value['followers'],
             'folderID' :value['folderID'],
+            'notificationID' :value['notificationID'],
             'key': key
           });
 followerList.forEach((element) {

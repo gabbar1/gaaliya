@@ -27,6 +27,7 @@ class SearchProvider extends ChangeNotifier{
             'following' :value['following'],
             'followers' :value['followers'],
             'folderID' :value['folderID'],
+            'notificationID' :value['notificationID'],
             'key': key
           });
           userTagList.add(userModel);

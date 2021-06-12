@@ -14,12 +14,14 @@ import 'package:gaaliya/screens/profile/profileProvider.dart';
 import 'package:flutter/src/painting/text_style.dart' as style;
 import 'package:flutter/material.dart' as containerColor;
 import 'package:gaaliya/service/authService.dart';
+import 'package:gaaliya/service/minio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class ProfileView extends StatefulWidget {
-  String currentUser, currentUsername, currentUserEmail;
-  ProfileView({this.currentUser, this.currentUsername, this.currentUserEmail});
+  String currentUser, currentUsername, currentUserEmail,notificationID;
+
+  ProfileView({this.currentUser, this.currentUsername, this.currentUserEmail,this.notificationID});
   @override
   _ProfileViewState createState() => _ProfileViewState();
 }
@@ -56,6 +58,13 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    const region = "us-west-1";
+    var minio = Minio(
+      endPoint: 's3.$region.wasabisys.com',
+      accessKey: 'VHNW6XFKQEN0737H95SA',
+      secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+    );
+
     return Scaffold(
         backgroundColor: Color(0xFF232027),
         body:
@@ -201,6 +210,7 @@ class _ProfileViewState extends State<ProfileView> {
                                       .isEmpty
                                   ? profile
                                       .follow(
+                                notificationID: widget.notificationID,
                                           uid: uid,
                                           followerID: widget.currentUser,
                                           followerName: widget.currentUsername,
@@ -297,10 +307,9 @@ class _ProfileViewState extends State<ProfileView> {
                                   ),
                                   itemBuilder: (context, postList) {
                                     return InkWell(
-                                      onLongPress: () {
-                                        largeImage(
-                                            profile: post.userPostList[postList]
-                                                .imageUrl);
+                                      onLongPress: () async{
+                                        largeImage(profile:await minio.presignedGetObject('gaaliya', post.userPostList[postList].imageUrl,));
+
                                       },
                                       onTap: () {
                                         Navigator.push(context,
@@ -312,44 +321,50 @@ class _ProfileViewState extends State<ProfileView> {
                                           );
                                         }));
                                       },
-                                      child: CachedNetworkImage(
-                                          placeholder: (context, url) =>
-                                              material.Container(
-                                                child: Center(
-                                                    child: material.Container(
-                                                  height: 50.0,
-                                                  width: 50.0,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 5,
-                                                    backgroundColor:
-                                                        Colors.grey,
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation(
-                                                            Colors.blue),
+                                      child: FutureBuilder(future: minio.presignedGetObject('gaaliya', post.userPostList[postList].imageUrl,),builder: (context,index){
+                                        if(index.hasData){
+                                           return CachedNetworkImage(
+                                              placeholder: (context, url) =>
+                                                  material.Container(
+                                                    child: Center(
+                                                        child: material.Container(
+                                                          height: 50.0,
+                                                          width: 50.0,
+                                                          child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 5,
+                                                            backgroundColor:
+                                                            Colors.grey,
+                                                            valueColor:
+                                                            AlwaysStoppedAnimation(
+                                                                Colors.blue),
+                                                          ),
+                                                        )),
+                                                    height: 50.0,
+                                                    width: 50.0,
                                                   ),
-                                                )),
-                                                height: 50.0,
-                                                width: 50.0,
-                                              ),
-                                          imageUrl: post
-                                              .userPostList[postList].imageUrl,
-                                          imageBuilder: (context,
+                                              imageUrl: index.data,
+                                              imageBuilder: (context,
                                                   imageProvider) =>
-                                              Container(
-                                                margin: EdgeInsets.all(5),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.blue,
-                                                    image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: imageProvider),
-                                                    border: Border.all(
-                                                        color: Colors.grey),
-                                                    borderRadius:
+                                                  Container(
+                                                    margin: EdgeInsets.all(5),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.blue,
+                                                        image: DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: imageProvider),
+                                                        border: Border.all(
+                                                            color: Colors.grey),
+                                                        borderRadius:
                                                         BorderRadius.all(
                                                             Radius.circular(
                                                                 10))),
-                                              )),
+                                                  ));
+                                        }else{
+                                          return Container( height: 50.0,
+                                            width: 50.0,);
+                                        }
+                                      },),
                                     );
                                   });
                             }),
@@ -392,33 +407,41 @@ class _ProfileViewState extends State<ProfileView> {
                                       .first
                                       .profile);
                         },
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(profile.userDetails
-                                              .where((element) =>
-                                                  element.userID ==
-                                                  widget.currentUser)
-                                              .first
-                                              .profile ==
-                                          null
-                                      ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg"
-                                      : profile.userDetails
-                                          .where((element) =>
-                                              element.userID ==
-                                              widget.currentUser)
-                                          .first
-                                          .profile)),
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Colors.grey,
-                              ),
-                              borderRadius:
+                        child: FutureBuilder(future: minio.presignedGetObject('gaaliya', profile.userDetails.where((element) => element.userID == widget.currentUser).first.profile,),builder: (context,index){
+                          if(index.hasData){
+                            return Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(index.data)),
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                  ),
+                                  borderRadius:
                                   BorderRadius.all(Radius.circular(20))),
-                        ),
+                            );
+                          }else{
+                            return Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                          "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg"
+                                          )),
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                            );
+                          }
+                        },),
                       );
                     },
                   ),
@@ -438,9 +461,11 @@ class _ProfileViewState extends State<ProfileView> {
 
   largeImage({String profile}) {
     return showDialog(
+
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+
             content: CachedNetworkImage(
               imageUrl: profile,
             ),

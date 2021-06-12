@@ -14,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/screens/comments/commentView.dart';
 import 'package:gaaliya/screens/profile/profileView.dart';
+import 'package:gaaliya/service/minio.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +61,12 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    const region = "us-west-1";
+    var minio = Minio(
+      endPoint: 's3.$region.wasabisys.com',
+      accessKey: 'VHNW6XFKQEN0737H95SA',
+      secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+    );
     return Scaffold(
       backgroundColor: Color(0xFF232027),
       appBar: AppBar(
@@ -114,20 +121,35 @@ class _AppState extends State<App> {
 
 
                             InkWell(
-                              child: Container(margin: EdgeInsets.only(left: 10),
-                                child: CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: Color(0xffD8D6D9),
-                                  child: CircleAvatar(
-                                      radius: 24,
-                                      backgroundImage: NetworkImage(event.data.snapshot.value['profile']== null ? "https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg":event.data.snapshot.value['profile'])),
-                                ),
-                              ),
+                              child: FutureBuilder(future: minio.presignedGetObject('gaaliya', event.data.snapshot.value['profile'],),builder: (context,index){
+                                if(index.hasData){
+                                  return Container(margin: EdgeInsets.only(left: 10),
+                                    child: CircleAvatar(
+                                      radius: 25,
+                                      backgroundColor: Color(0xffD8D6D9),
+                                      child: CircleAvatar(
+                                          radius: 24,
+                                          backgroundImage:NetworkImage(index.data)),
+                                    ),
+                                  );
+                                }
+                                else{
+                                   return Container(margin: EdgeInsets.only(left: 10),
+                                    child: CircleAvatar(
+                                      radius: 25,
+                                      backgroundColor: Color(0xffD8D6D9),
+                                      child: CircleAvatar(
+                                          radius: 24,
+                                          backgroundImage:NetworkImage("https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg")),
+                                    ),
+                                  );
+                                }
+                              },),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ProfileView(currentUser:event.data.snapshot.value['userID'] ,currentUsername: event.data.snapshot.value['userName'],currentUserEmail: event.data.snapshot.value['userEmail'] ,)),
+                                      builder: (context) => ProfileView(notificationID: event.data.snapshot.value['notificationID'],currentUser:event.data.snapshot.value['userID'] ,currentUsername: event.data.snapshot.value['userName'],currentUserEmail: event.data.snapshot.value['userEmail'] ,)),
                                 );
                               },
                             ),
@@ -168,15 +190,21 @@ class _AppState extends State<App> {
                             });
                           },child: SvgPicture.asset("assets/images/copy.svg")),],),
                       ),
-                      InkWell(onLongPress: (){
-                        largeImage(profile:post.postList[posts].imageUrl );
-                      },child: CachedNetworkImage(fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height/2,imageUrl: post.postList[posts].imageUrl,
-                        placeholder: (context, url) =>Container(
-                          child: Center(child: Container( height: 100.0,
-                            width: 100.0,child: CircularProgressIndicator(strokeWidth: 5,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
-                          height: 100.0,
-                          width: 100.0,
-                        ),),),
+                      InkWell(onLongPress: () async{
+                        largeImage(profile:await minio.presignedGetObject('gaaliya', post.postList[posts].imageUrl,));
+                     //   largeImage(profile:post.postList[posts].imageUrl );
+                      },child: FutureBuilder(future: minio.presignedGetObject('gaaliya', post.postList[posts].imageUrl,),builder: (context,index){
+                        if(index.hasData){
+                          return CachedNetworkImage(fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height/2,imageUrl:  index.data ,
+                            placeholder: (context, url) =>Container(
+                              child: Center(child: Container( height: 100.0,
+                                width: 100.0,child: CircularProgressIndicator(strokeWidth: 5,backgroundColor: Colors.grey,valueColor: AlwaysStoppedAnimation(Colors.blue),),)),
+                              height: 100.0,
+                              width: 100.0,
+                            ),);
+                        } else return Container(height:  MediaQuery.of(context).size.height/2);
+
+                      },),),
                       Container(
                         height: 20,
 
