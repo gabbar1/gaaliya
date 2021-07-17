@@ -22,6 +22,8 @@ environment:
 
 dependencies:
   pull_to_refresh: ^1.6.4
+  convert: ^3.0.0
+  mime: ^1.0.0
   firebase_database: ^6.1.2
   firebase_core: ^1.0.4
   firebase_auth: ^1.1.1
@@ -29,7 +31,6 @@ dependencies:
   google_sign_in: ^5.0.1
   cached_network_image: ^2.5.1
   flutter_secure_storage: ^4.1.0
-  googleapis: ^2.0.0
   googleapis_auth: ^1.1.0
   path_provider: ^2.0.1
   file_picker: ^3.0.1
@@ -44,6 +45,11 @@ dependencies:
   screenshot: ^0.3.0
   image: ^3.0.2
   fluttertoast: ^8.0.6
+  flutter_local_notifications: ^5.0.0+1
+  firebase_messaging: ^9.1.1
+  multi_image_picker2: ^5.0.2
+  http: ^0.13.3
+  flutter_absolute_path: ^1.0.6
   flutter:
     sdk: flutter
 

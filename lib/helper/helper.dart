@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'googleCLientAPI.dart';
 
 String dummyProfilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6TaCLCqU4K0ieF27ayjl51NmitWaJAh_X0r1rLX4gMvOe0MDaYw&s';
@@ -26,6 +29,7 @@ List<String> dummyProfilePicList = [
   'https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg',
   'https://cdn6.f-cdn.com/contestentries/753244/20994643/57c189b564237_thumb900.jpg',
 ];
+
 
 void onLoading(
     {
@@ -199,7 +203,7 @@ class ImageFile extends ChangeNotifier{
     );
   }
 
-  void showImagePicker({BuildContext context}) {
+  void showImagePicker({BuildContext context,int type}) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
@@ -211,14 +215,15 @@ class ImageFile extends ChangeNotifier{
                       leading: new Icon(Icons.photo_library),
                       title: new Text('Photo Library'),
                       onTap: () {
-                        _imgFromGallery(context: context);
+                        loadAssets();
+                      //  _imgFromGallery(context: context,type :type);
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
                     leading: new Icon(Icons.photo_camera),
                     title: new Text('Camera'),
                     onTap: () {
-                      _imgFromCamera(context: context);
+                      _imgFromCamera(context: context,type :type);
                       Navigator.of(context).pop();
                     },
                   ),
@@ -229,7 +234,7 @@ class ImageFile extends ChangeNotifier{
         });
   }
 
-  _imgFromCamera({BuildContext context}) async {
+  _imgFromCamera({BuildContext context,int type}) async {
     final pickedFile = await imagePicker.getImage(
         source: ImageSource.camera,
         imageQuality: 90,
@@ -239,50 +244,17 @@ class ImageFile extends ChangeNotifier{
     if (pickedFile != null) {
       File croppedFile = await  ImageCropper.cropImage(sourcePath: pickedFile.path);
       Provider.of<GaliImageProvider>(context,listen: false).getImageLink(link: croppedFile.path);
-     // Navigator.pop(context);
+      if(type == 2){
+         Navigator.pop(context);
+      }
+
     }
     notifyListeners();
 
   }
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  _uploadFileToGoogleDrive({File pickedFile}) async {
-    final SharedPreferences prefs = await _prefs;
-    final googleSignIn =
-    signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-    print("User account $account");
 
-    final authHeaders = await account.authHeaders;
-    final authenticateClient = GoogleAuthClient(authHeaders);
-    final driveApi = drive.DriveApi(authenticateClient);
-
-
-    File croppedFile = File(pickedFile.path);
-    drive.File fileUpload = drive.File();
-    drive.Permission per = drive.Permission();
-    per.type = "anyone";
-    per.role = "reader";
-    int timeInMillis = 1586348737122;
-    var date = DateTime.fromMillisecondsSinceEpoch(timeInMillis);
-
-    fileUpload.name = date.toString();
-    fileUpload.parents = [prefs.getString("folderID")];
-    print(prefs.getString("folderID"));
-    final result = await driveApi.files.create(fileUpload, uploadMedia: drive.Media(croppedFile.openRead(),croppedFile.lengthSync()),);
-    try
-    {
-      driveApi.permissions.create(per, result.id);
-      print("00000000000000000000000000000000000");
-      print(result.id);
-      print("https://drive.google.com/uc?export=download&id="+result.id);
-      //Creating Permission after folder creation.
-    }
-    catch (Exception)
-    {
-      print("Error");
-    }
-  }
-  _imgFromGallery({BuildContext context}) async {
+  _imgFromGallery({BuildContext context,int type}) async {
     final pickedFile = await imagePicker.getImage(
         source: ImageSource.gallery,
         imageQuality: 90,
@@ -291,6 +263,9 @@ class ImageFile extends ChangeNotifier{
     if (pickedFile != null) {
       File croppedFile = await  ImageCropper.cropImage(sourcePath: pickedFile.path);
       Provider.of<GaliImageProvider>(context,listen: false).getImageLink(link: croppedFile.path);
+      if(type == 2){
+        Navigator.pop(context);
+      }
       //Navigator.pop(context);
      // Navigator.pop(context);
     } else {
@@ -298,6 +273,84 @@ class ImageFile extends ChangeNotifier{
     }
     notifyListeners();
 
+  }
+
+  Future<void> loadAssets() async {
+
+    String error = 'No Error Detected';
+    List<Asset> images = <Asset>[];
+    String _error = 'No Error Dectected';
+    var  resultList= Provider.of<GaliImageProvider>(context,listen: false).resultList;
+    try {
+
+     // resultList.clear();
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 300,
+        enableCamera: true,
+        selectedAssets: images,
+        cupertinoOptions: CupertinoOptions(
+          takePhotoIcon: "chat",
+          doneButtonTitle: "Fatto",
+        ),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#abcdef",
+          actionBarTitle: "Example App",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#000000",
+        ),
+      );
+
+      resultList.forEach((element) {
+        print(element.name);
+        print(element.identifier);
+
+      });
+    } on Exception catch (e) {
+      error = e.toString();
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+
+  }
+
+  Future<void> sendNotification({subject, title, topic}) async {
+
+    String toParams = "/topics/" + topic;
+
+    final data = {
+      "notification": {"body": subject, "title": title},
+      "priority": "high",
+      "data": {
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+        "id": "1",
+        "status": "done",
+        "sound": 'default',
+        "screen": "yourTopicName",
+      },
+      "to": "${toParams}"
+    };
+
+    final headers = {
+      'content-type': 'application/json',
+      'Authorization':
+      'key=AAAAyV7RMCc:APA91bGYYFSlKtAmZSiplg2GuojDVdBzbjZlo5p9jymCPCGD-a8oqurY7WbuNx_UndhIQ_b4V3ktlHcCU2yyKwTqKcxINXR2opf_6j7cm6aCKnYo4yqTeVA1_mE1pe1_NCTcbPWWO28m'
+    };
+
+    final response = await http.post(Uri.https("fcm.googleapis.com", "fcm/send"),
+        body: json.encode(data),
+        encoding: Encoding.getByName('utf-8'),
+        headers: headers);
+
+    if (response.statusCode == 200) {
+      // on success do
+      print("true");
+    } else {
+      // on failure do
+      print("false");
+    }
   }
 
 

@@ -68,7 +68,7 @@ class _GaliLibViewState extends State<GaliLibView> {
                 ),
                 Container(
                     margin: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height / 5),
+                        top: MediaQuery.of(context).size.height / 6),
                     height: MediaQuery.of(context).size.height,
                     child: Container(
 

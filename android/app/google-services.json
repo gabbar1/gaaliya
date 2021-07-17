@@ -23,6 +23,51 @@
           }
         },
         {
+          "client_id": "864879194151-ktavkrpguhult599q788ebisqruagje1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.boss.gaaliya",
+            "certificate_hash": "1857d0494e3576bb5970bf8951c9574765d880ea"
+          }
+        },
+        {
+          "client_id": "864879194151-gl473n7t12cit8h0q8a56bku6996mfpg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSPPWuVVxrVkN3fT8OJ8xlNAmvc-pT1LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864879194151-gl473n7t12cit8h0q8a56bku6996mfpg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864879194151:android:f6c5a1192030872ca0de02",
+        "android_client_info": {
+          "package_name": "com.boss.gaaliyaadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "864879194151-l752m8il0tfe3qp254jq3gbjvpeb2992.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.boss.gaaliyaadmin",
+            "certificate_hash": "ebf573cce432efea3a49cf3effb8183616924076"
+          }
+        },
+        {
           "client_id": "864879194151-gl473n7t12cit8h0q8a56bku6996mfpg.apps.googleusercontent.com",
           "client_type": 3
         }

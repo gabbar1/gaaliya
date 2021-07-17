@@ -1,13 +1,13 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gaaliya/helper/helper.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:gaaliya/model/postModel.dart';
 import 'package:gaaliya/model/userModel.dart';
-import 'package:gaaliya/screens/dashboard/homeNavigator.dart';
 
-import 'dashBoard.dart';
 
 class DashBoardProvider extends ChangeNotifier {
   List<PostModel> postList = <PostModel>[];
@@ -73,49 +73,88 @@ class DashBoardProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> sendPost({String postContent, userID, contentURL,BuildContext context}) async {
+  Future<void> sendPost({String name, type, contentURL,BuildContext context}) async {
     String postID;
 
-    transRef.child("content").once().then((value) {
-      postID = "GL_" +
-          userID +
-          (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+    transRef.child("galilib").once().then((value) {
+      postID = "GL_" +  (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
       print(postID);
       print(value.value.length);
       Navigator.pop(context);
-      transRef.child("content").push().set({
-        'gali': postContent,
-        'postID': postID,
-        'time': DateTime.now().toString(),
-        'userID': userID,
-        'likes': 0,
-        'comments': 0,
-        "imageUrl":contentURL
-      }).then((value) => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeNavigator()),
-          (Route<dynamic> route) => false));
+      transRef.child("galilib").push().set({
+        'name':name,
+        'type':type,
+        "image":contentURL
+      }).then((value) {
+        Fluttertoast.showToast(msg: "Image Uploaded");
+
+      });
     });
   }
 
-  Future<void> sendProfilePost({String name,email,postContent, userID, contentURL,BuildContext context}) async {
+  Future<void> updatePost({BuildContext context}) async {
     String postID;
 
-    transRef.child("content").once().then((value) {
-      postID = "GL_" +
-          userID +
-          (value.value.length + 1 ?? 1).toString().padLeft(10, '0');
+    transRef.child("galilib").once().then((DataSnapshot snapshot) {
+      postID = "GL_" +  (snapshot.value.length + 1 ?? 1).toString().padLeft(10, '0');
       print(postID);
-      print(value.value.length);
-      Navigator.pop(context);
-      transRef.child("user").child(userID).update({
-        "profile":contentURL,
-        "userEmail":email,
-        "userName":name
-      }).then((value) => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeNavigator()),
-              (Route<dynamic> route) => false));
+      print(snapshot.value.length);
+      Map<dynamic, dynamic> lists = snapshot.value;
+      lists.forEach((keys, value) {
+        print("------------KeyValue----------------");
+        print(keys);
+        print(value["number"]);
+
+        transRef.child("galilib").child(keys).update({
+          'number':int.parse(value["number"].toString())
+        });
+        
+      });
+     // Navigator.pop(context);
+     // transRef.child("galilib").child(path)
+    });
+  }
+
+
+
+  Future<void> sendProfilePost({int total,current,String name,email,postContent, userID, contentURL,BuildContext context}) async {
+    int postID;
+    // onLoading(context: context, strMessage: total.toString() + "/"+ current.toString());
+    transRef.child("content").once().then((value) {
+      postID = (value.value==null ?1:value.value.length + 1 );
+      print(postID);
+     // print(value.value.length);
+      transRef.child("content").push().set({
+        'comments':0,
+        'gali':"email",
+        "imageUrl":contentURL,
+        'likes':0,
+        'number':postID,
+        'postID':postID,
+        'time':DateTime.now().toString(),
+        'userID':"v7cX7HPGUubWIMu7ZLH9sHMksuJ3"
+      }).then((value) {
+        Fluttertoast.showToast(msg: "Image Uploaded   "+total.toString() + "/"+ (current+1).toString());
+
+        Navigator.pop(context);
+
+
+
+      });
+     /* transRef.child("galilib").push().set({
+        'name':name,
+        'type':email,
+        "image":contentURL,
+        'time':DateTime.now().toString(),
+        'number':postID
+      }).then((value) {
+        Fluttertoast.showToast(msg: "Image Uploaded   "+total.toString() + "/"+ (current+1).toString());
+
+          Navigator.pop(context);
+        
+
+
+      });*/
     });
   }
 
@@ -164,17 +203,17 @@ class DashBoardProvider extends ChangeNotifier {
         listPost.forEach((key, value) async{
           print(value);
           UserModel postModel = UserModel.fromJson({
-          'profile' : value['profile'],
-          'userEmail' : value['userEmail'],
-          'userID' : value['userID'],
-          'userName' : value['userName'],
-           'following' :value['following'],
-           'followers' :value['followers'],
-           'folderID' :value['folderID'],
+            'profile' : value['profile'],
+            'userEmail' : value['userEmail'],
+            'userID' : value['userID'],
+            'userName' : value['userName'],
+            'following' :value['following'],
+            'followers' :value['followers'],
+            'folderID' :value['folderID'],
             'key': key
           });
           userDetails.add(postModel);
-         await userDetails.where((element) => element.userID == uid);
+          await userDetails.where((element) => element.userID == uid);
         });
         notifyListeners();
       }
@@ -190,7 +229,7 @@ class DashBoardProvider extends ChangeNotifier {
         Map<dynamic, dynamic> listPost = snapshot.value;
 
         listPost.forEach((key, value) {
-         // print(value);
+          // print(value);
           PostModel postModel = PostModel.fromJson({
             'gali': value['gali'],
             'postID': value['postID'],

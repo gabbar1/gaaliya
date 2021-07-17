@@ -2,10 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:gaaliya/helper/helper.dart';
-import 'package:gaaliya/model/userModel.dart';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
-import 'package:googleapis/docs/v1.dart';
-import 'package:googleapis/run/v1.dart';
 import 'package:provider/provider.dart';
 
 class GaliImagesView extends StatefulWidget {
@@ -139,7 +136,7 @@ class _GaliImagesViewState extends State<GaliImagesView> {
       }),
       floatingActionButton: FloatingActionButton(child: Icon(Icons.add),onPressed: (){
         Provider.of<ImageFile>(context, listen: false)
-            .showImagePicker(context: context);
+            .showImagePicker(context: context,type: 2);
       }),
     );
   }

@@ -3,12 +3,13 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gaaliya/providerState/providerState.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:flutter/material.dart' as textFont;
 import 'helper/appUtils.dart';
@@ -16,12 +17,40 @@ import 'helper/googleCLientAPI.dart';
 import 'helper/helper.dart';
 import 'service/authService.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
+
+/// Create a [AndroidNotificationChannel] for heads up notifications
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.high,
+);
+
+/// Initialize the [FlutterLocalNotificationsPlugin] package.
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 
 
 Future<void> main() async {
   // Fetch the available cameras before initializing the app.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   runApp(MultiProvider(
     providers: ProviderState().providerList,
     child: MyApp(),
@@ -73,14 +102,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         .signInWithCredential(credential)
         .then((value) async {
       if (value.user != null) {
-        final googleSignIn =
-        signIn.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-        final signIn.GoogleSignInAccount account = await googleSignIn.signIn();
-        final authHeaders = await account.authHeaders;
-        final authenticateClient = GoogleAuthClient(authHeaders);
-        final driveApi = drive.DriveApi(authenticateClient);
-        final SharedPreferences prefs = await _prefs;
-        print("User account $account");
+
+
         FirebaseDatabase.instance
             .reference()
             .child("user")
@@ -88,11 +111,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
             .once()
             .then((DataSnapshot snapshot) async {
           if (snapshot.value == null) {
-            drive.File folderUpload = drive.File();
-            folderUpload.mimeType = "application/vnd.google-apps.folder";
-            folderUpload.name = "gaaliya";
-            final folder = await driveApi.files.create(folderUpload);
-            prefs.setString('folderID', folder.id);
+
+
             FirebaseDatabase.instance
                 .reference()
                 .child("user")
@@ -103,14 +123,13 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
               'userPhone': value.user.phoneNumber,
               'userName': value.user.displayName,
               'profile': dummyProfilePicList[randomNumber],
-              'folderID': folder.id,
               "followers":0,
               "following":0
 
 
             });
           } else {
-            prefs.setString('folderID', snapshot.value["folderID"]);
+
           }
         });
       }
