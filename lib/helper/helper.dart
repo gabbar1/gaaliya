@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
 import 'package:provider/provider.dart';
+<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
+=======
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +15,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:multi_image_picker2/multi_image_picker2.dart';
 import 'googleCLientAPI.dart';
 
+=======
+
+//String addUnit = "ca-app-pub-3719084056205826/9305008098";//LiveMode
+String addUnit = "ca-app-pub-3940256099942544/8135179316";//TestMode
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 String dummyProfilePic = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6TaCLCqU4K0ieF27ayjl51NmitWaJAh_X0r1rLX4gMvOe0MDaYw&s';
 String appFont = 'HelveticaNeuea';
 List<String> dummyProfilePicList = [
@@ -215,8 +224,12 @@ class ImageFile extends ChangeNotifier{
                       leading: new Icon(Icons.photo_library),
                       title: new Text('Photo Library'),
                       onTap: () {
+<<<<<<< HEAD
                         loadAssets();
                       //  _imgFromGallery(context: context,type :type);
+=======
+                        _imgFromGallery(context: context,type :type);
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
@@ -252,7 +265,10 @@ class ImageFile extends ChangeNotifier{
     notifyListeners();
 
   }
+<<<<<<< HEAD
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+=======
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 
   _imgFromGallery({BuildContext context,int type}) async {
     final pickedFile = await imagePicker.getImage(
@@ -275,6 +291,7 @@ class ImageFile extends ChangeNotifier{
 
   }
 
+<<<<<<< HEAD
   Future<void> loadAssets() async {
 
     String error = 'No Error Detected';
@@ -317,6 +334,9 @@ class ImageFile extends ChangeNotifier{
   }
 
   Future<void> sendNotification({subject, title, topic}) async {
+=======
+  Future<void> sendNotification({subject, title, topic,uid}) async {
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 
     String toParams = "/topics/" + topic;
 
@@ -324,13 +344,23 @@ class ImageFile extends ChangeNotifier{
       "notification": {"body": subject, "title": title},
       "priority": "high",
       "data": {
+<<<<<<< HEAD
+=======
+        "uid":uid,
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
         "id": "1",
         "status": "done",
         "sound": 'default',
+<<<<<<< HEAD
         "screen": "yourTopicName",
       },
       "to": "${toParams}"
+=======
+        "screen": "ProfileView",
+      },
+      "to": toParams
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
     };
 
     final headers = {

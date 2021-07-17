@@ -1,36 +1,31 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:gaaliya/model/userModel.dart';
+import 'package:gaaliya/model/galiLibModel.dart';
+
 
 class GaliLibProvider extends ChangeNotifier{
   FirebaseDatabase ref = FirebaseDatabase();
   List result = [];
   List<String> type = <String>[];
-  List<UserModel> userTagList = <UserModel>[];
+  List<GaliLibModel> userTagList = <GaliLibModel>[];
 
   Future<void> getGaliLib() async{
-    ref.reference().child("user").once().then((DataSnapshot snapshot){
+    ref.reference().child("galiTextLib").once().then((DataSnapshot snapshot){
       userTagList.clear();
       if(snapshot.value !=null){
         Map<dynamic, dynamic> listTag = snapshot.value;
 
         listTag.forEach((key,value){
-          print("------------TagList-----------");
-          print(value);
 
-          UserModel userModel = UserModel.fromJson({
-            'profile' : value['profile'],
-            'userEmail' : value['userEmail'],
-            'userID' : value['userID'],
-            'userName' : value['userName'],
-            'following' :value['following'],
-            'followers' :value['followers'],
-            'folderID' :value['folderID'],
+
+          GaliLibModel userModel = GaliLibModel.fromJson({
+          'content' : value['content'],
+          'type' : value['type'],
             'key': key
           });
           userTagList.add(userModel);
           userTagList.forEach((element) {
-            type.add(element.userName);
+            type.add(element.type);
             result = type.toSet().toList();
 
 

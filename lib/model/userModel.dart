@@ -3,12 +3,14 @@ class UserModel {
   String userEmail;
   String userID;
   String userName;
+  String galiUserID;
   String followers;
   String following;
   String key;
   String folderID;
+  String notificationID;
 
-  UserModel({this.profile, this.userEmail, this.userID, this.userName,this.key,this.folderID});
+  UserModel({this.notificationID,this.profile, this.userEmail, this.userID, this.userName,this.key,this.folderID});
 
   UserModel.fromJson(Map<String, dynamic> json) {
     key = json['key'];
@@ -17,6 +19,8 @@ class UserModel {
     userID = json['userID'];
     userName = json['userName'];
     folderID = json['folderID'];
+    galiUserID = json['galiUserID'];
+    notificationID = json['notificationID'];
     followers = json['followers'].toString();
     following = json['following'].toString();
   }
@@ -30,6 +34,8 @@ class UserModel {
     data['following'] = this.following;
     data['followers'] = this.followers;
     data['folderID'] = this.folderID;
+    data['notificationID'] = this.notificationID;
+    data['galiUserID'] = this.galiUserID;
     return data;
   }
 }

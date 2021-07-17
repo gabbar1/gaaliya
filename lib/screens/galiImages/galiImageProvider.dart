@@ -1,26 +1,33 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:gaaliya/helper/helper.dart';
 import 'package:gaaliya/model/galiImageModel.dart';
 import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+<<<<<<< HEAD
 
 import 'package:gaaliya/service/minio.dart';
 import 'package:http/http.dart';
+=======
+import 'package:gaaliya/service/minio.dart';
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 import 'package:image/image.dart';
 import 'dart:ui' as ui;
-
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 import 'package:google_sign_in/google_sign_in.dart' as signIn;
 import 'package:gaaliya/helper/googleCLientAPI.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -43,9 +50,7 @@ class GaliImageProvider extends ChangeNotifier{
       listGaliImages.clear();
       type.clear();
       if(snapshot!=null){
-       // print(snapshot.value);
         snapshot.value.forEach((key,val){
-         // print(val);
           GaliImageModel listGaliImage = GaliImageModel.fromJson({
             'image':val['image'],
             'name':val['name'],
@@ -97,21 +102,20 @@ class GaliImageProvider extends ChangeNotifier{
       final cropImage = decodeImage(File(fullPath).readAsBytesSync());
 
       // Resize the image to a 120x? thumbnail (maintaining the aspect ratio).
+<<<<<<< HEAD
       final thumbnail = copyResize(cropImage, width: 300,height:300,interpolation: Interpolation.average);
+=======
+      final thumbnail = copyResize(cropImage, width: 300,interpolation: Interpolation.average);
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 
       // Save the thumbnail as a PNG.
       final String newFullPath = '$dir/${DateTime.now().millisecond}.png';
       await File(newFullPath).writeAsBytesSync(encodePng(thumbnail));
       capturedNewFile = File(newFullPath);
-      print("--------------------");
-      print(capturedFile);
-      print(newFullPath);
       filename=newFullPath.split("/").last;
       notifyListeners();
 
-    /*  await Share.file("G GATE Visitor Invitation", "Invitation.png", pngBytes,
-          "image/png" //,
-      );*/
+
     } catch (e) {
       print("Share Screenshot Error :: " + e.toString());
     }
@@ -119,12 +123,16 @@ class GaliImageProvider extends ChangeNotifier{
 
  /* Future<void> uploadFileToGoogleDrive({File image,String filename,content,BuildContext context, String type,name}) async {
     onLoading(context: context, strMessage: "Loading");
+<<<<<<< HEAD
     final SharedPreferences prefs = await _prefs;
     final googleSignIn =
 
+=======
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 
     print(image.path);
     File croppedFile = File(image.path);
+<<<<<<< HEAD
 
 
     try
@@ -132,11 +140,29 @@ class GaliImageProvider extends ChangeNotifier{
 
       Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,type: type,name:name,contentURL:"https://drive.google.com/uc?export=download&id="+result.id  );
       //Creating Permission after folder creation.
+=======
+    var date = DateTime.fromMillisecondsSinceEpoch(1586348737122 * 1000);
+    var newFileName = filename+date.toString()+"jpg";
+    try {
+      const region = "us-west-1";
+      final minio = Minio(
+        endPoint: 's3.$region.wasabisys.com',
+        accessKey: 'VHNW6XFKQEN0737H95SA',
+        secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+      );
+      Stream<List<int>> stream = new File(croppedFile.path).openRead();
+      await minio.putObject('gaaliya',filename+croppedFile.path.split("/").last , stream,100);
+      final url = await minio.presignedGetObject('gaaliya', filename+croppedFile.path.split("/").last,);
+      Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last );
+      print(url);
+
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
     }
-    catch (Exception)
-    {
-      print("Error");
+
+    catch(Exception){
+      print(Exception);
     }
+<<<<<<< HEAD
   }*/
 
   Future<void> uploadProfileToGoogleDrive({String name,email,List<Asset> image,content,BuildContext context, String uid,String folder}) async {
@@ -211,5 +237,52 @@ print(date.toString()+croppedFile.path.split("/").last );
 
 
 
+=======
+
+  }
+
+  Future<void> uploadProfileToGoogleDrive({String galiUserID,name,email,File image,String filename,content,BuildContext context, String uid,String folder}) async {
+    onLoading(context: context, strMessage: "Loading");
+
+    File croppedFile = File(image.path);
+
+    try {
+      const region = "us-west-1";
+      final minio = Minio(
+        endPoint: 's3.$region.wasabisys.com',
+        accessKey: 'VHNW6XFKQEN0737H95SA',
+        secretKey: 'InDRZ7LHJjPZyeoocGkDjVzPB4nc71ZNiykZKegZ',
+      );
+      Stream<List<int>> stream = new File(croppedFile.path).openRead();
+      await minio.putObject('gaaliya',filename+croppedFile.path.split("/").last , stream,100);
+      final url = await minio.presignedGetObject('gaaliya', filename+croppedFile.path.split("/").last,);
+      Provider.of<DashBoardProvider>(context,listen: false).sendProfilePost(galiUserID: galiUserID,email:email,name:name,context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last  );
+      //Provider.of<DashBoardProvider>(context,listen: false).sendPost(context: context,userID: uid,postContent:content,contentURL:filename+croppedFile.path.split("/").last );
+      print(url);
+
+    }
+
+    catch(Exception){
+      print(Exception);
+    }
+
+  }
+  bool userExist = false;
+   checkUserID({BuildContext context,String galiUserID}) async{
+    FirebaseDatabase.instance.reference().child('user').once().then((DataSnapshot snapshot){
+      if(snapshot.value!=null){
+        Map<dynamic, dynamic> listPost = snapshot.value;
+        listPost.forEach((key, value) {
+          if(value['galiUserID'] == galiUserID){
+           showDialog(context: context, builder: (BuildContext context){
+             return AlertDialog(title: Text("User Already Taken"),);
+           });
+          }
+        });
+
+      }
+    });
+    return userExist;
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
   }
 }

@@ -1,13 +1,23 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 
 import 'package:gaaliya/screens/galiLib/galiLibView.dart';
 import 'package:flutter/material.dart' as textfont;
 import 'package:gaaliya/upload/galiUploading.dart';
+=======
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gaaliya/screens/addPost/addPost.dart';
+import 'package:gaaliya/screens/dashboard/dashBoard.dart';
+import 'package:gaaliya/screens/dashboard/dashBoardProvider.dart';
+import 'package:gaaliya/screens/galiImages/galiImageProvider.dart';
+import 'package:gaaliya/screens/galiLib/galiLibView.dart';
+import 'package:gaaliya/screens/profile/profileView.dart';
+import 'package:gaaliya/screens/search/searchView.dart';
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 import 'package:provider/provider.dart';
 import 'package:gaaliya/upload/imageUpload.dart';
 
@@ -19,21 +29,27 @@ class HomeNavigator extends StatefulWidget {
 
 /// This is the private State class that goes with HomeNavigator.
 class _HomeNavigatorState extends State<HomeNavigator> {
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
 
-  int _CurrentIdex = 0;
+
+  int _currentIdex = 0;
   String uid = "";
   Widget callPage(int currentIdex) {
     switch (currentIdex) {
       case 0:
         return ImageUpload();
       case 1:
+<<<<<<< HEAD
         return GaliUploading();
       case 2:return ImageUpload();
       case 3:return GaliLibView();
 
+=======
+        return SearchView(status : "1");
+      case 2:return AddPostView();
+      case 3:return GaliLibView();
+      case 4:return ProfileView(currentUser: uid);
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
         break;
       default:
         return ImageUpload();
@@ -46,6 +62,10 @@ class _HomeNavigatorState extends State<HomeNavigator> {
         Map<dynamic, dynamic> subscribeList = snapshot.value;
         subscribeList.forEach((key, value) {
           FirebaseMessaging.instance.subscribeToTopic(value['subriberID']);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
         });
       }
     });
@@ -66,10 +86,11 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xFF232027),
         extendBody: true,
 
       body: Center(
-        child: callPage(_CurrentIdex),
+        child: callPage(_currentIdex),
       ),
       bottomNavigationBar: Container(
 
@@ -86,55 +107,86 @@ class _HomeNavigatorState extends State<HomeNavigator> {
             GestureDetector(
               onTap: (){
                setState(() {
-                 _CurrentIdex =0;
+                 _currentIdex =0;
                });
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/images/home.png"),
+                child: SvgPicture.asset("assets/images/home.svg"),
               ),
             ),
             Spacer(),
            GestureDetector(
              onTap: (){
                setState(() {
-                 _CurrentIdex =1;
+                 _currentIdex =1;
                });
              },
              child:  Container(
-               height: 80,
+               height:30,
                width: MediaQuery.of(context).size.width/6,
-               child: Image.asset("assets/images/search.png"),
+               child: SvgPicture.asset("assets/images/search.svg"),
              ),
            ),
             Spacer(),
             GestureDetector(
               onTap: (){
+<<<<<<< HEAD
                 _CurrentIdex =2;
 
+=======
+                _currentIdex =2;
+                Provider.of<GaliImageProvider>(context,listen: false).imageLink =null;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AddPostView()),
+                );
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
-                child: Image.asset("assets/images/add.png"),
+                child: SvgPicture.asset("assets/images/add.svg"),
               ),
             ),
             Spacer(),
             GestureDetector(
               onTap: (){
                 setState(() {
-                  _CurrentIdex =3;
+                  _currentIdex =3;
 
                 });
               },
               child: Container(
-                height: 80,
+                height: 30,
                 width: MediaQuery.of(context).size.width/6,
+<<<<<<< HEAD
                 child: Image.asset("assets/icons/ico_gali_lib.png"),
               ),
             ),
             Spacer(),
+=======
+                child: SvgPicture.asset("assets/images/galiLib.svg",),
+              ),
+            ),
+            Spacer(),
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  _currentIdex =4;
+
+                });
+              },
+              child: Container(
+                height: 30,
+                width: MediaQuery.of(context).size.width/6,
+                child: SvgPicture.asset("assets/images/profile.svg",),
+              ),
+            ),
+>>>>>>> 8ef9d5bb9ffb6b5d66a728ff1ba286c3fed5bd5d
 
 
 
